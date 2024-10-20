@@ -1,0 +1,21 @@
+# https://stable-baselines3.readthedocs.io/en/master/modules/ppo.html#parameters
+gymnasium_search_race/SearchRace-v0:
+  n_timesteps: !!float 1e6
+  policy: "MlpPolicy"
+  n_steps: 2048
+  batch_size: 64
+  n_epochs: 10
+  gamma: 0.99
+  learning_rate: !!float 3e-4
+  clip_range: 0.2
+  ent_coef: 0.01
+  vf_coef: 0.5
+  max_grad_norm: 0.5
+  gae_lambda: 0.95
+  policy_kwargs: "dict(
+    log_std_init=-2,
+    ortho_init=False,
+    activation_fn=nn.ReLU,
+    net_arch=dict(pi=[128, 128], vf=[128, 128])
+  )"
+  n_envs: 8
