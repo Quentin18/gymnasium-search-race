@@ -12,7 +12,7 @@ class Car:
     vy: float = 0.0
 
     def get_angle(self, x: float, y: float) -> float:
-        return np.rad2deg(np.atan2(y - self.y, x - self.x))
+        return np.rad2deg(np.atan2(y - self.y, x - self.x)) % 360
 
     def rotate(self, angle: float) -> None:
         self.angle = (self.angle + angle) % 360
