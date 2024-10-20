@@ -1,8 +1,8 @@
 # https://stable-baselines3.readthedocs.io/en/master/modules/ppo.html#parameters
 gymnasium_search_race/SearchRace-v0:
-  n_timesteps: !!float 1e6
+  n_timesteps: !!float 1e7
   policy: "MlpPolicy"
-  n_steps: 2048
+  n_steps: 4096
   batch_size: 64
   n_epochs: 10
   gamma: 0.99
