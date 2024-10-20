@@ -179,7 +179,7 @@ class SearchRaceEnv(gym.Env):
 
         angle, thrust = self._convert_action_to_angle_thrust(action=action)
         checkpoint_index = self._get_next_checkpoint_index()
-        reward = 0
+        reward = -0.1
 
         self.car.rotate(angle=angle)
         self.car.thrust_towards_heading(thrust=thrust)
@@ -192,7 +192,7 @@ class SearchRaceEnv(gym.Env):
             <= self.checkpoint_radius
         ):
             self.current_checkpoint += 1
-            reward += 1
+            reward = 1000 / self.total_checkpoints
 
         self.car.adjust(friction=self.car_friction)
 
