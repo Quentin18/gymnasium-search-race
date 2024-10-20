@@ -1,5 +1,4 @@
 import json
-import random
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any, SupportsFloat
@@ -110,7 +109,7 @@ class SearchRaceEnv(gym.Env):
     def _generate_checkpoints(self) -> np.ndarray:
         if self.test_id is None:
             maps_paths = sorted((ROOT_PATH / "maps").glob("*.json"))
-            test_map_path = random.choice(maps_paths)
+            test_map_path = self.np_random.choice(maps_paths)
         else:
             test_map_path = ROOT_PATH / "maps" / f"test{self.test_id}.json"
 
