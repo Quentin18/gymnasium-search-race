@@ -1,0 +1,1 @@
+from gymnasium_search_race.envs.search_race import SearchRaceEnv

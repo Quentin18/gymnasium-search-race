@@ -1,0 +1,1 @@
+include src/gymnasium_search_race/envs/assets/* src/gymnasium_search_race/envs/maps/*
