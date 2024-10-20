@@ -28,7 +28,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-training = ["rl_zoo3==2.3.0"]
+training = ["rl_zoo3==2.3.0", "tensorboard==2.18.0"]
 testing = ["pytest"]
 quality = ["black[d]", "isort", "pylint"]
 
