@@ -19,6 +19,7 @@ FONT_NAME = "Monospace"
 FONT_COLOR = (255, 255, 255)
 FONT_SIZE = 400
 ROOT_PATH = Path(__file__).resolve().parent
+MAPS_PATH = ROOT_PATH / "maps"
 
 
 class SearchRaceEnv(gym.Env):
@@ -106,12 +107,12 @@ class SearchRaceEnv(gym.Env):
             "current_checkpoint": self.current_checkpoint,
         }
 
-    def _generate_checkpoints(self) -> np.ndarray:
-        if self.test_id is None:
-            maps_paths = sorted((ROOT_PATH / "maps").glob("*.json"))
+    def _generate_checkpoints(self, test_id: int | None = None) -> np.ndarray:
+        if test_id is None:
+            maps_paths = sorted(MAPS_PATH.glob("*.json"))
             test_map_path = self.np_random.choice(maps_paths)
         else:
-            test_map_path = ROOT_PATH / "maps" / f"test{self.test_id}.json"
+            test_map_path = MAPS_PATH / f"test{test_id}.json"
 
         test_map = json.loads(test_map_path.read_text(encoding="UTF-8"))
 
@@ -131,7 +132,13 @@ class SearchRaceEnv(gym.Env):
     ) -> tuple[ObsType, dict[str, Any]]:
         super().reset(seed=seed, options=options)
 
-        self.checkpoints = self._generate_checkpoints()
+        self.checkpoints = self._generate_checkpoints(
+            test_id=(
+                self.test_id
+                if options is None or "test_id" not in options
+                else options["test_id"]
+            )
+        )
         self.total_checkpoints = len(self.checkpoints) * self.laps
         self.current_checkpoint = 0
         self.car = Car(

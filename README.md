@@ -131,6 +131,17 @@ python -m rl_zoo3.enjoy \
   --progress
 ```
 
+### Run Test Cases
+
+To run test cases with a trained agent, execute:
+
+```bash
+python -m scripts.run_test_cases \
+  --path rl-trained-agents/ppo/best_model.zip \
+  --record-video \
+  --record-metrics
+```
+
 ## Tests
 
 To run tests, execute:
