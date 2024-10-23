@@ -17,7 +17,7 @@ https://github.com/user-attachments/assets/1862b04b-9e33-4f55-a309-ad665a1db2f1
         </tr>
         <tr>
             <td>Observation Space</td>
-            <td><code>Box([0, 0, 0, 0, 0, 0, -1, -1, 0], [1, 1, 1, 1, 1, 1, 1, 1, 1], float64)</code></td>
+            <td><code>Box([0, 0, 0, 0, 0, 0, 0, -1, -1, 0], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], float64)</code></td>
         </tr>
         <tr>
             <td>import</td>
@@ -53,8 +53,9 @@ The action is a `ndarray` with 2 continuous variables:
 
 ### Observation Space
 
-The observation is a `ndarray` of 9 continuous variables:
+The observation is a `ndarray` of 10 continuous variables:
 
+- 1 if the next checkpoint is the last one, 0 otherwise.
 - The x and y coordinates of the next checkpoint.
 - The x and y coordinates of the checkpoint after next checkpoint.
 - The x and y coordinates of the car.
