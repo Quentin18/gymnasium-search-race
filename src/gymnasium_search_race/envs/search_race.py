@@ -41,11 +41,11 @@ class SearchRaceEnv(gym.Env):
         self.car_thrust_upper_bound = 2000
         self.car_angle_upper_bound = 360
 
-        # next checkpoint, checkpoint after next checkpoint
+        # is last checkpoint, next checkpoint, checkpoint after next checkpoint
         # position, horizontal speed, vertical speed, angle
         self.observation_space = spaces.Box(
-            low=np.array([0, 0, 0, 0, 0, 0, -1, -1, 0]),
-            high=np.array([1, 1, 1, 1, 1, 1, 1, 1, 1]),
+            low=np.array([0, 0, 0, 0, 0, 0, 0, -1, -1, 0]),
+            high=np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1]),
             dtype=np.float64,
         )
 
@@ -72,6 +72,7 @@ class SearchRaceEnv(gym.Env):
         next_next_checkpoint_index = (next_checkpoint_index + 1) % len(self.checkpoints)
         return np.array(
             [
+                float(self.current_checkpoint >= (self.total_checkpoints - 1)),
                 self.checkpoints[next_checkpoint_index][0],
                 self.checkpoints[next_checkpoint_index][1],
                 self.checkpoints[next_next_checkpoint_index][0],
@@ -83,6 +84,7 @@ class SearchRaceEnv(gym.Env):
                 self.car.angle,
             ]
         ) / [
+            1,
             self.width,
             self.height,
             self.width,

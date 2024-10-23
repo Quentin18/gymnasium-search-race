@@ -7,9 +7,9 @@ from gymnasium.core import ActType, ObsType
 
 
 def get_next_action(observation: ObsType, info: dict[str, Any]) -> ActType:
-    next_checkpoint_pos = observation[0:2] * [info["width"], info["height"]]
-    car_pos = observation[4:6] * [info["width"], info["height"]]
-    car_angle = observation[8] * info["car_angle_upper_bound"]
+    next_checkpoint_pos = observation[1:3] * [info["width"], info["height"]]
+    car_pos = observation[5:7] * [info["width"], info["height"]]
+    car_angle = observation[9] * info["car_angle_upper_bound"]
 
     diff = next_checkpoint_pos - car_pos
     next_checkpoint_angle = np.rad2deg(np.atan2(diff[1], diff[0]))

@@ -39,7 +39,7 @@ def test_search_race_step(test_id: int):
     ):
         actual = [
             info["current_checkpoint"],
-            *observation[4:]
+            *observation[5:]
             * [
                 info["width"],
                 info["height"],
