@@ -7,6 +7,8 @@
 Gymnasium environment for
 the [Search Race CodinGame optimization puzzle](https://www.codingame.com/multiplayer/optimization/search-race).
 
+https://github.com/user-attachments/assets/1862b04b-9e33-4f55-a309-ad665a1db2f1
+
 <table>
     <tbody>
         <tr>
