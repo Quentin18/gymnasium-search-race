@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gymnasium_search_race"
-version = "0.0.1"
+version = "0.1.0"
 authors = [
     { name = "Quentin Deschamps", email = "quentindeschamps18@gmail.com" },
 ]
