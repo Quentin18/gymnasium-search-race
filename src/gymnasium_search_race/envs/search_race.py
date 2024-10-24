@@ -41,11 +41,12 @@ class SearchRaceEnv(gym.Env):
         self.car_thrust_upper_bound = 2000
         self.car_angle_upper_bound = 360
 
-        # is last checkpoint, next checkpoint, checkpoint after next checkpoint
+        # next checkpoints, visit checkpoints,
         # position, horizontal speed, vertical speed, angle
+        self.checkpoints_in_obs = 3
         self.observation_space = spaces.Box(
-            low=np.array([0, 0, 0, 0, 0, 0, 0, -1, -1, 0]),
-            high=np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1]),
+            low=np.array([0] * self.checkpoints_in_obs * 3 + [0, 0, -1, -1, 0]),
+            high=1,
             dtype=np.float64,
         )
 
@@ -67,34 +68,47 @@ class SearchRaceEnv(gym.Env):
         self.background_img = None
         self.car_img = None
 
-    def _get_obs(self) -> ObsType:
-        next_checkpoint_index = (self.current_checkpoint + 1) % len(self.checkpoints)
-        next_next_checkpoint_index = (next_checkpoint_index + 1) % len(self.checkpoints)
-        return np.array(
-            [
-                float(self.current_checkpoint >= (self.total_checkpoints - 1)),
-                self.checkpoints[next_checkpoint_index][0],
-                self.checkpoints[next_checkpoint_index][1],
-                self.checkpoints[next_next_checkpoint_index][0],
-                self.checkpoints[next_next_checkpoint_index][1],
-                self.car.x,
-                self.car.y,
-                self.car.vx,
-                self.car.vy,
-                self.car.angle,
-            ]
-        ) / [
-            1,
-            self.width,
-            self.height,
-            self.width,
-            self.height,
-            self.width,
-            self.height,
-            self.car_thrust_upper_bound,
-            self.car_thrust_upper_bound,
-            self.car_angle_upper_bound,
+    def _get_next_checkpoint_index(self) -> int:
+        return (self.current_checkpoint + 1) % len(self.checkpoints)
+
+    def _get_next_checkpoints(self, n: int) -> np.ndarray:
+        next_checkpoint_index = self._get_next_checkpoint_index()
+        next_checkpoints = self.checkpoints[
+            next_checkpoint_index : next_checkpoint_index + n
         ]
+        missing = n - len(next_checkpoints)
+        return (
+            np.vstack((next_checkpoints, self.checkpoints[:missing]))
+            if missing > 0
+            else next_checkpoints
+        )
+
+    def _get_obs(self) -> ObsType:
+        next_checkpoints = self._get_next_checkpoints(n=self.checkpoints_in_obs) / [
+            self.width,
+            self.height,
+        ]
+        visit_checkpoints = np.array(
+            [
+                self.current_checkpoint + 1 + i <= self.total_checkpoints
+                for i in range(self.checkpoints_in_obs)
+            ],
+            dtype=np.float64,
+        )
+        car = np.array(
+            [
+                self.car.x / self.width,
+                self.car.y / self.height,
+                self.car.vx / self.car_thrust_upper_bound,
+                self.car.vy / self.car_thrust_upper_bound,
+                self.car.angle / self.car_angle_upper_bound,
+            ],
+            dtype=np.float64,
+        )
+        return np.hstack(
+            (next_checkpoints.flatten(), visit_checkpoints, car),
+            dtype=np.float64,
+        )
 
     def _get_info(self) -> dict[str, Any]:
         return {
@@ -174,9 +188,6 @@ class SearchRaceEnv(gym.Env):
         thrust = np.rint(thrust * self.car_max_thrust)
 
         return angle, thrust
-
-    def _get_next_checkpoint_index(self) -> int:
-        return (self.current_checkpoint + 1) % len(self.checkpoints)
 
     def step(
         self,
