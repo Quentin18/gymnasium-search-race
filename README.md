@@ -21,7 +21,7 @@ https://github.com/user-attachments/assets/1862b04b-9e33-4f55-a309-ad665a1db2f1
         </tr>
         <tr>
             <td>import</td>
-            <td><code>gymnasium.make("gymnasium_search_race:gymnasium_search_race/SearchRace-v0")</code></td>
+            <td><code>gymnasium.make("gymnasium_search_race:gymnasium_search_race/SearchRace-v1")</code></td>
         </tr>
     </tbody>
 </table>
@@ -90,8 +90,13 @@ The episode ends if either of the following happens:
 ```python
 import gymnasium as gym
 
-gym.make("gymnasium_search_race:gymnasium_search_race/SearchRace-v0", test_id=1)
+gym.make("gymnasium_search_race:gymnasium_search_race/SearchRace-v1", test_id=1)
 ```
+
+### Version History
+
+- v1: Add boolean to indicate if the next checkpoint is the last checkpoint in observation
+- v0: Initial version
 
 ## Usage
 
@@ -110,7 +115,7 @@ To train a PPO agent for the Search Race game, execute:
 ```bash
 python -m rl_zoo3.train \
   --algo ppo \
-  --env gymnasium_search_race/SearchRace-v0 \
+  --env gymnasium_search_race/SearchRace-v1 \
   --tensorboard-log logs \
   --eval-freq 10000 \
   --eval-episodes 10 \
@@ -126,7 +131,7 @@ To see a trained agent in action on random test cases, execute:
 ```bash
 python -m rl_zoo3.enjoy \
   --algo ppo \
-  --env gymnasium_search_race/SearchRace-v0 \
+  --env gymnasium_search_race/SearchRace-v1 \
   --n-timesteps 10000 \
   --deterministic \
   --gym-packages gymnasium_search_race \

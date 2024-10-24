@@ -32,7 +32,7 @@ def get_next_action(observation: ObsType, info: dict[str, Any]) -> ActType:
 
 def baseline_policy(test_id: int | None, seed: int, n_timesteps: int) -> None:
     env = gym.make(
-        "gymnasium_search_race:gymnasium_search_race/SearchRace-v0",
+        "gymnasium_search_race:gymnasium_search_race/SearchRace-v1",
         render_mode="human",
         test_id=test_id,
     )

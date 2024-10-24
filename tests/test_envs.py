@@ -11,7 +11,7 @@ RESOURCES_PATH = Path(__file__).resolve().parent / "resources"
 
 def test_check_env():
     env = gym.make(
-        "gymnasium_search_race:gymnasium_search_race/SearchRace-v0",
+        "gymnasium_search_race:gymnasium_search_race/SearchRace-v1",
         test_id=1,
     )
     check_env(env=env.unwrapped)
@@ -23,7 +23,7 @@ def test_check_env():
 )
 def test_search_race_step(test_id: int):
     env = gym.make(
-        "gymnasium_search_race:gymnasium_search_race/SearchRace-v0",
+        "gymnasium_search_race:gymnasium_search_race/SearchRace-v1",
         test_id=test_id,
     )
 

@@ -53,7 +53,7 @@ def run_test_cases(
     metrics_folder: str = "metrics",
 ) -> None:
     env = gym.make(
-        "gymnasium_search_race:gymnasium_search_race/SearchRace-v0",
+        "gymnasium_search_race:gymnasium_search_race/SearchRace-v1",
         render_mode="rgb_array" if record_video else None,
     )
 
