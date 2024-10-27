@@ -9,11 +9,15 @@ from gymnasium.utils.env_checker import check_env
 RESOURCES_PATH = Path(__file__).resolve().parent / "resources"
 
 
-def test_check_env():
-    env = gym.make(
+@pytest.mark.parametrize(
+    "env_id",
+    (
         "gymnasium_search_race:gymnasium_search_race/SearchRace-v1",
-        test_id=1,
-    )
+        "gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v0",
+    ),
+)
+def test_check_env(env_id: str):
+    env = gym.make(env_id, test_id=1)
     check_env(env=env.unwrapped)
 
 

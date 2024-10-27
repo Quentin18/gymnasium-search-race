@@ -1,5 +1,6 @@
 import json
 from dataclasses import asdict
+from itertools import product
 from pathlib import Path
 from typing import Any, SupportsFloat
 
@@ -73,28 +74,18 @@ class SearchRaceEnv(gym.Env):
         return np.array(
             [
                 float(self.current_checkpoint >= (self.total_checkpoints - 1)),
-                self.checkpoints[next_checkpoint_index][0],
-                self.checkpoints[next_checkpoint_index][1],
-                self.checkpoints[next_next_checkpoint_index][0],
-                self.checkpoints[next_next_checkpoint_index][1],
-                self.car.x,
-                self.car.y,
-                self.car.vx,
-                self.car.vy,
-                self.car.angle,
-            ]
-        ) / [
-            1,
-            self.width,
-            self.height,
-            self.width,
-            self.height,
-            self.width,
-            self.height,
-            self.car_thrust_upper_bound,
-            self.car_thrust_upper_bound,
-            self.car_angle_upper_bound,
-        ]
+                self.checkpoints[next_checkpoint_index][0] / self.width,
+                self.checkpoints[next_checkpoint_index][1] / self.height,
+                self.checkpoints[next_next_checkpoint_index][0] / self.width,
+                self.checkpoints[next_next_checkpoint_index][1] / self.height,
+                self.car.x / self.width,
+                self.car.y / self.height,
+                self.car.vx / self.car_thrust_upper_bound,
+                self.car.vy / self.car_thrust_upper_bound,
+                self.car.angle / self.car_angle_upper_bound,
+            ],
+            dtype=np.float64,
+        )
 
     def _get_info(self) -> dict[str, Any]:
         return {
@@ -222,7 +213,7 @@ class SearchRaceEnv(gym.Env):
         next_checkpoint_index = self._get_next_checkpoint_index()
 
         for i, checkpoint in enumerate(self.checkpoints):
-            center = (checkpoint[0] / SCALE_FACTOR, checkpoint[1] / SCALE_FACTOR)
+            center = (checkpoint / SCALE_FACTOR).tolist()
             pygame.draw.circle(
                 surface=canvas,
                 color=(
@@ -331,3 +322,26 @@ class SearchRaceEnv(gym.Env):
         if self.window is not None:
             pygame.display.quit()
             pygame.quit()
+
+
+class SearchRaceDiscreteEnv(SearchRaceEnv):
+    def __init__(
+        self,
+        render_mode: str | None = None,
+        test_id: int | None = None,
+    ) -> None:
+        super().__init__(render_mode=render_mode, test_id=test_id)
+
+        self.action_space = spaces.Discrete(9)
+        self.actions = list(
+            product(
+                (-self.max_rotation_per_turn, 0, self.max_rotation_per_turn),
+                (-self.car_max_thrust, 0, self.car_max_thrust),
+            )
+        )
+
+    def _convert_action_to_angle_thrust(
+        self,
+        action: np.ndarray,
+    ) -> tuple[float, float]:
+        return self.actions[action]
