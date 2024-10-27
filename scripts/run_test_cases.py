@@ -30,16 +30,19 @@ def get_test_case_length(env: gym.Env, model: PPO, test_id: int) -> int:
 
 def write_metrics(
     metrics_folder: str,
-    test_ids: list[int],
-    total_length: int,
+    env_id: str,
     episode_lengths: dict[int, int],
 ) -> None:
     with open(Path(metrics_folder) / "metrics.csv", "a", encoding="utf-8") as csv_file:
-        writer = csv.DictWriter(csv_file, fieldnames=["date", "total", *test_ids])
+        writer = csv.DictWriter(
+            csv_file,
+            fieldnames=["env", "date", "total", *sorted(episode_lengths.keys())],
+        )
         writer.writerow(
             {
+                "env": env_id,
                 "date": datetime.now().isoformat(timespec="seconds"),
-                "total": total_length,
+                "total": sum(episode_lengths.values()),
                 **episode_lengths,
             }
         )
@@ -47,15 +50,11 @@ def write_metrics(
 
 def run_test_cases(
     model_path: str,
+    env_id: str,
     record_video: bool = False,
     video_folder: str = "videos",
-    record_metrics: bool = False,
-    metrics_folder: str = "metrics",
-) -> None:
-    env = gym.make(
-        "gymnasium_search_race:gymnasium_search_race/SearchRace-v1",
-        render_mode="rgb_array" if record_video else None,
-    )
+) -> dict[int, int]:
+    env = gym.make(env_id, render_mode="rgb_array" if record_video else None)
 
     env = gym.wrappers.RecordEpisodeStatistics(env)
 
@@ -82,13 +81,7 @@ def run_test_cases(
     env.close()
     print("Total:", total_length)
 
-    if record_metrics:
-        write_metrics(
-            metrics_folder=metrics_folder,
-            test_ids=test_ids,
-            total_length=total_length,
-            episode_lengths=episode_lengths,
-        )
+    return episode_lengths
 
 
 if __name__ == "__main__":
@@ -99,6 +92,11 @@ if __name__ == "__main__":
         "--path",
         required=True,
         help="path to model file",
+    )
+    parser.add_argument(
+        "--env",
+        default="gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v0",
+        help="environment id",
     )
     parser.add_argument(
         "--record-video",
@@ -121,10 +119,17 @@ if __name__ == "__main__":
         help="path to metrics folder",
     )
     args = parser.parse_args()
-    run_test_cases(
+
+    lengths = run_test_cases(
         model_path=args.path,
+        env_id=args.env,
         record_video=args.record_video,
         video_folder=args.video_folder,
-        record_metrics=args.record_metrics,
-        metrics_folder=args.metrics_folder,
     )
+
+    if args.record_metrics:
+        write_metrics(
+            metrics_folder=args.metrics_folder,
+            env_id=args.env,
+            episode_lengths=lengths,
+        )
