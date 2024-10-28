@@ -332,13 +332,18 @@ class SearchRaceDiscreteEnv(SearchRaceEnv):
     ) -> None:
         super().__init__(render_mode=render_mode, test_id=test_id)
 
-        self.action_space = spaces.Discrete(6)
         self.actions = list(
             product(
-                (-self.max_rotation_per_turn, 0, self.max_rotation_per_turn),
-                (0, self.car_max_thrust),
+                list(
+                    range(
+                        -self.max_rotation_per_turn,
+                        self.max_rotation_per_turn + 1,
+                    )
+                ),
+                [0, self.car_max_thrust],
             )
         )
+        self.action_space = spaces.Discrete(len(self.actions))
 
     def _convert_action_to_angle_thrust(
         self,
