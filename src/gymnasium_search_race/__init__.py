@@ -7,7 +7,7 @@ register(
 )
 
 register(
-    id="gymnasium_search_race/SearchRaceDiscrete-v0",
+    id="gymnasium_search_race/SearchRaceDiscrete-v1",
     entry_point="gymnasium_search_race.envs:SearchRaceDiscreteEnv",
     max_episode_steps=600,
 )

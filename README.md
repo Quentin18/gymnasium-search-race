@@ -108,12 +108,17 @@ The `SearchRaceDiscrete` environment is similar to the `SearchRace` environment 
 ```python
 import gymnasium as gym
 
-gym.make("gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v0", test_id=1)
+gym.make("gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v1", test_id=1)
 ```
 
 ### Action Space
 
-There are 6 discrete actions corresponding to the combinations of angles -18, 0 and 18 degrees and thrust 0 and 200.
+There are 74 discrete actions corresponding to the combinations of angles from -18 to 18 degrees and thrust 0 and 200.
+
+### Version History
+
+- v1: Add all angles in action space
+- v0: Initial version
 
 ## Usage
 

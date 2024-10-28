@@ -13,7 +13,7 @@ RESOURCES_PATH = Path(__file__).resolve().parent / "resources"
     "env_id",
     (
         "gymnasium_search_race:gymnasium_search_race/SearchRace-v1",
-        "gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v0",
+        "gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v1",
     ),
 )
 def test_check_env(env_id: str):
