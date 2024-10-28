@@ -101,6 +101,20 @@ gym.make("gymnasium_search_race:gymnasium_search_race/SearchRace-v1", test_id=1)
 - v1: Add boolean to indicate if the next checkpoint is the last checkpoint in observation
 - v0: Initial version
 
+## Discrete environment
+
+The `SearchRaceDiscrete` environment is similar to the `SearchRace` environment except the action space is discrete.
+
+```python
+import gymnasium as gym
+
+gym.make("gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v0", test_id=1)
+```
+
+### Action Space
+
+There are 6 discrete actions corresponding to the combinations of angles -18, 0 and 18 degrees and thrust 0 and 200.
+
 ## Usage
 
 You can use [RL Baselines3 Zoo](https://github.com/DLR-RM/rl-baselines3-zoo) to train and evaluate agents:
