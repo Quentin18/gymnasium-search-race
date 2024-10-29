@@ -167,7 +167,8 @@ To run test cases with a trained agent, execute:
 
 ```bash
 python -m scripts.run_test_cases \
-  --path rl-trained-agents/ppo/best_model.zip \
+  --path rl-trained-agents/ppo/gymnasium_search_race-SearchRace-v1_1/best_model.zip \
+  --env gymnasium_search_race:gymnasium_search_race/SearchRace-v1 \
   --record-video \
   --record-metrics
 ```
