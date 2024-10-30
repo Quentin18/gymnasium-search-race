@@ -100,7 +100,16 @@ class SearchRaceEnv(gym.Env):
             "current_checkpoint": self.current_checkpoint,
         }
 
-    def _generate_checkpoints(self, test_id: int | None = None) -> np.ndarray:
+    def _generate_checkpoints(
+        self,
+        options: dict[str, Any] | None = None,
+    ) -> np.ndarray:
+        test_id = (
+            self.test_id
+            if options is None or "test_id" not in options
+            else options["test_id"]
+        )
+
         if test_id is None:
             maps_paths = sorted(MAPS_PATH.glob("*.json"))
             test_map_path = self.np_random.choice(maps_paths)
@@ -117,6 +126,11 @@ class SearchRaceEnv(gym.Env):
             dtype=np.float64,
         )
 
+    def _adjust_car(self) -> None:
+        self.car.truncate_position()
+        self.car.round_angle()
+        self.car.truncate_speed(friction=self.car_friction)
+
     def reset(
         self,
         *,
@@ -125,13 +139,7 @@ class SearchRaceEnv(gym.Env):
     ) -> tuple[ObsType, dict[str, Any]]:
         super().reset(seed=seed, options=options)
 
-        self.checkpoints = self._generate_checkpoints(
-            test_id=(
-                self.test_id
-                if options is None or "test_id" not in options
-                else options["test_id"]
-            )
-        )
+        self.checkpoints = self._generate_checkpoints(options=options)
         self.total_checkpoints = len(self.checkpoints) * self.laps
         self.current_checkpoint = 0
         self.car = Car(
@@ -143,7 +151,7 @@ class SearchRaceEnv(gym.Env):
             x=self.checkpoints[1][0],
             y=self.checkpoints[1][1],
         )
-        self.car.adjust(friction=self.car_friction)
+        self._adjust_car()
 
         observation = self._get_obs()
         info = self._get_info()
@@ -194,7 +202,7 @@ class SearchRaceEnv(gym.Env):
             self.current_checkpoint += 1
             reward = 1000 / self.total_checkpoints
 
-        self.car.adjust(friction=self.car_friction)
+        self._adjust_car()
 
         observation = self._get_obs()
         terminated = self.current_checkpoint >= self.total_checkpoints

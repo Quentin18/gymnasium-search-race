@@ -14,10 +14,11 @@ RESOURCES_PATH = Path(__file__).resolve().parent / "resources"
     (
         "gymnasium_search_race:gymnasium_search_race/SearchRace-v1",
         "gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v1",
+        "gymnasium_search_race:gymnasium_search_race/MadPodRacing-v0",
     ),
 )
 def test_check_env(env_id: str):
-    env = gym.make(env_id, test_id=1)
+    env = gym.make(env_id)
     check_env(env=env.unwrapped)
 
 
