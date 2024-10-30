@@ -30,14 +30,15 @@ def get_next_action(observation: ObsType, info: dict[str, Any]) -> ActType:
     ]
 
 
-def baseline_policy(test_id: int | None, seed: int, n_timesteps: int) -> None:
-    env = gym.make(
-        "gymnasium_search_race:gymnasium_search_race/SearchRace-v1",
-        render_mode="human",
-        test_id=test_id,
-    )
+def baseline_policy(
+    env_id: str,
+    test_id: int | None = None,
+    seed: int | None = None,
+    n_timesteps: int = 600,
+) -> None:
+    env = gym.make(env_id, render_mode="human")
 
-    observation, info = env.reset(seed=seed)
+    observation, info = env.reset(seed=seed, options={"test_id": test_id})
 
     for _ in range(n_timesteps):
         action = get_next_action(observation=observation, info=info)
@@ -55,6 +56,11 @@ if __name__ == "__main__":
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
+        "--env",
+        default="gymnasium_search_race:gymnasium_search_race/SearchRace-v1",
+        help="environment id",
+    )
+    parser.add_argument(
         "--test-id",
         type=int,
         help="test id",
@@ -62,7 +68,6 @@ if __name__ == "__main__":
     parser.add_argument(
         "--seed",
         type=int,
-        default=42,
         help="random generator seed",
     )
     parser.add_argument(
@@ -73,6 +78,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     baseline_policy(
+        env_id=args.env,
         test_id=args.test_id,
         seed=args.seed,
         n_timesteps=args.n_timesteps,

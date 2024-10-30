@@ -48,6 +48,7 @@ max-line-length = "88"
 max-line-length = 88
 disable = [
     "attribute-defined-outside-init",
+    "duplicate-code",
     "inconsistent-return-statements",
     "missing-class-docstring",
     "missing-function-docstring",
