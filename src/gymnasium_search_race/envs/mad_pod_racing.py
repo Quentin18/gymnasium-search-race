@@ -1,6 +1,8 @@
+from itertools import product
 from typing import Any
 
 import numpy as np
+from gymnasium import spaces
 
 from gymnasium_search_race.envs.search_race import SearchRaceEnv
 
@@ -115,3 +117,27 @@ class MadPodRacingEnv(SearchRaceEnv):
     def _adjust_car(self) -> None:
         self.car.round_position()
         self.car.truncate_speed(friction=self.car_friction)
+
+
+class MadPodRacingDiscreteEnv(MadPodRacingEnv):
+    def __init__(self, render_mode: str | None = None) -> None:
+        super().__init__(render_mode=render_mode)
+
+        self.actions = list(
+            product(
+                list(
+                    range(
+                        -self.max_rotation_per_turn,
+                        self.max_rotation_per_turn + 1,
+                    )
+                ),
+                [0, self.car_max_thrust],
+            )
+        )
+        self.action_space = spaces.Discrete(len(self.actions))
+
+    def _convert_action_to_angle_thrust(
+        self,
+        action: np.ndarray,
+    ) -> tuple[float, float]:
+        return self.actions[action]
