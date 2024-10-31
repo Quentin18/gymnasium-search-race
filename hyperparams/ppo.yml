@@ -25,3 +25,6 @@ gymnasium_search_race/SearchRaceDiscrete-v1:
 
 gymnasium_search_race/MadPodRacing-v0:
   <<: *search-race-defaults
+
+gymnasium_search_race/MadPodRacingDiscrete-v0:
+  <<: *search-race-defaults
