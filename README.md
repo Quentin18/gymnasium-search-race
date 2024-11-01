@@ -7,8 +7,9 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 
-Gymnasium environment for
-the [Search Race CodinGame optimization puzzle](https://www.codingame.com/multiplayer/optimization/search-race).
+Gymnasium environments for
+the [Search Race CodinGame optimization puzzle](https://www.codingame.com/multiplayer/optimization/search-race)
+and [Mad Pod Racing CodinGame bot programming game](https://www.codingame.com/multiplayer/bot-programming/mad-pod-racing).
 
 https://github.com/user-attachments/assets/1862b04b-9e33-4f55-a309-ad665a1db2f1
 
@@ -120,6 +121,23 @@ There are 74 discrete actions corresponding to the combinations of angles from -
 - v1: Add all angles in action space
 - v0: Initial version
 
+## Mad Pod Racing
+
+The `MadPodRacing` and `MadPodRacingDiscrete` environments can be used to train a runner for
+the [Mad Pod Racing CodinGame bot programming game](https://www.codingame.com/multiplayer/bot-programming/mad-pod-racing).
+They are similar to the `SearchRace` and `SearchRaceDiscrete` environments except the following differences:
+
+- The maximum thrust value is 100 instead of 200.
+- The maps are generated the same way Codingame generates them.
+- The car position is rounded and not truncated.
+
+```python
+import gymnasium as gym
+
+gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacing-v0")
+gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v0")
+```
+
 ## Usage
 
 You can use [RL Baselines3 Zoo](https://github.com/DLR-RM/rl-baselines3-zoo) to train and evaluate agents:
@@ -202,6 +220,8 @@ To cite the repository in publications:
 - [RL Baselines3 Zoo](https://github.com/DLR-RM/rl-baselines3-zoo)
 - [Stable Baselines3](https://github.com/DLR-RM/stable-baselines3)
 - [CGSearchRace](https://github.com/Illedan/CGSearchRace)
+- [CSB-Runner-Arena](https://github.com/Agade09/CSB-Runner-Arena)
+- [Coders Strikes Back by Magus](http://files.magusgeek.com/csb/csb_en.html)
 
 ## Author
 
