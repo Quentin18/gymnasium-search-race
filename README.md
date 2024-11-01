@@ -139,7 +139,7 @@ python -m rl_zoo3.train \
   --algo ppo \
   --env gymnasium_search_race/SearchRace-v1 \
   --tensorboard-log logs \
-  --eval-freq 10000 \
+  --eval-freq 20000 \
   --eval-episodes 10 \
   --gym-packages gymnasium_search_race \
   --conf-file hyperparams/ppo.yml \
@@ -154,7 +154,7 @@ To see a trained agent in action on random test cases, execute:
 python -m rl_zoo3.enjoy \
   --algo ppo \
   --env gymnasium_search_race/SearchRace-v1 \
-  --n-timesteps 10000 \
+  --n-timesteps 1000 \
   --deterministic \
   --gym-packages gymnasium_search_race \
   --load-best \
