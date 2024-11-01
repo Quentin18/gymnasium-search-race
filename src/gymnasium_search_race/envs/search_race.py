@@ -311,7 +311,11 @@ class SearchRaceEnv(gym.Env):
 
         if self.font is None:
             pygame.font.init()
-            self.font = pygame.font.SysFont(FONT_NAME, FONT_SIZE // SCALE_FACTOR)
+            self.font = pygame.font.SysFont(
+                FONT_NAME,
+                FONT_SIZE // SCALE_FACTOR,
+                bold=True,
+            )
 
         if self.background_img is None:
             self.background_img = self._load_background_img()
