@@ -20,6 +20,7 @@ FONT_NAME = "Monospace"
 FONT_COLOR = (255, 255, 255)
 FONT_SIZE = 400
 ROOT_PATH = Path(__file__).resolve().parent
+ASSETS_PATH = ROOT_PATH / "assets" / "search_race"
 MAPS_PATH = ROOT_PATH / "maps"
 
 
@@ -66,7 +67,9 @@ class SearchRaceEnv(gym.Env):
         self.clock = None
         self.font = None
         self.background_img = None
+        self.background_img_path = ASSETS_PATH / "back.jpg"
         self.car_img = None
+        self.car_img_path = ASSETS_PATH / "car.png"
 
     def _get_obs(self) -> ObsType:
         next_checkpoint_index = (self.current_checkpoint + 1) % len(self.checkpoints)
@@ -217,6 +220,20 @@ class SearchRaceEnv(gym.Env):
         if self.render_mode == "rgb_array":
             return self._render_frame()
 
+    def _load_background_img(self) -> pygame.Surface:
+        background_img = pygame.image.load(self.background_img_path)
+        return pygame.transform.scale_by(
+            background_img,
+            (self.width / SCALE_FACTOR) / background_img.get_width(),
+        )
+
+    def _load_car_img(self) -> pygame.Surface:
+        car_img = pygame.image.load(self.car_img_path)
+        return pygame.transform.scale_by(
+            car_img,
+            (self.checkpoint_radius / SCALE_FACTOR) / car_img.get_width(),
+        )
+
     def _draw_checkpoints(self, canvas: pygame.Surface) -> None:
         next_checkpoint_index = self._get_next_checkpoint_index()
 
@@ -297,15 +314,10 @@ class SearchRaceEnv(gym.Env):
             self.font = pygame.font.SysFont(FONT_NAME, FONT_SIZE // SCALE_FACTOR)
 
         if self.background_img is None:
-            self.background_img = pygame.image.load(ROOT_PATH / "assets" / "back.jpg")
-            self.background_img = pygame.transform.scale_by(
-                self.background_img,
-                (self.width / SCALE_FACTOR) / self.background_img.get_width(),
-            )
+            self.background_img = self._load_background_img()
 
         if self.car_img is None:
-            self.car_img = pygame.image.load(ROOT_PATH / "assets" / "car.png")
-            self.car_img = pygame.transform.scale_by(self.car_img, 8 / SCALE_FACTOR)
+            self.car_img = self._load_car_img()
 
         canvas = pygame.Surface(window_size)
         canvas.blit(self.background_img, (0, 0))

@@ -1,10 +1,14 @@
 from itertools import product
+from pathlib import Path
 from typing import Any
 
 import numpy as np
 from gymnasium import spaces
 
 from gymnasium_search_race.envs.search_race import SearchRaceEnv
+
+ROOT_PATH = Path(__file__).resolve().parent
+ASSETS_PATH = ROOT_PATH / "assets" / "mad_pod_racing"
 
 MAPS = [
     [
@@ -99,6 +103,8 @@ class MadPodRacingEnv(SearchRaceEnv):
         super().__init__(render_mode=render_mode)
         self.car_max_thrust = 100
         self.car_thrust_upper_bound = 1000
+        self.background_img_path = ASSETS_PATH / "background.jpg"
+        self.car_img_path = ASSETS_PATH / "space_ship_runner.png"
 
     def _generate_checkpoints(
         self,

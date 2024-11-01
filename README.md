@@ -223,6 +223,11 @@ To cite the repository in publications:
 - [CSB-Runner-Arena](https://github.com/Agade09/CSB-Runner-Arena)
 - [Coders Strikes Back by Magus](http://files.magusgeek.com/csb/csb_en.html)
 
+### Assets
+
+- https://www.flaticon.com/free-icon/space-ship_751036
+- https://www.flaticon.com/free-icon/space-ship_784925
+
 ## Author
 
 [Quentin Deschamps](mailto:quentindeschamps18@gmail.com)
