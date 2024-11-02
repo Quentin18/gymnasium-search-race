@@ -131,6 +131,18 @@ class SearchRaceEnv(gym.Env):
             dtype=np.float64,
         )
 
+    def _generate_car(self) -> None:
+        self.car = Car(
+            x=self.checkpoints[0][0],
+            y=self.checkpoints[0][1],
+            angle=0,
+            current_checkpoint=0,
+        )
+        self.car.angle = self.car.get_angle(
+            x=self.checkpoints[1][0],
+            y=self.checkpoints[1][1],
+        )
+
     def _adjust_car(self) -> None:
         self.car.truncate_position()
         self.car.round_angle()
@@ -146,16 +158,7 @@ class SearchRaceEnv(gym.Env):
 
         self.checkpoints = self._generate_checkpoints(options=options)
         self.total_checkpoints = len(self.checkpoints) * self.laps
-        self.car = Car(
-            x=self.checkpoints[0][0],
-            y=self.checkpoints[0][1],
-            angle=0,
-            current_checkpoint=0,
-        )
-        self.car.angle = self.car.get_angle(
-            x=self.checkpoints[1][0],
-            y=self.checkpoints[1][1],
-        )
+        self._generate_car()
         self._adjust_car()
 
         observation = self._get_obs()

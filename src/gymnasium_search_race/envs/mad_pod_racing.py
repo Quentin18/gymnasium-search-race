@@ -4,7 +4,9 @@ from typing import Any
 
 import numpy as np
 from gymnasium import spaces
+from stable_baselines3 import PPO
 
+from gymnasium_search_race.envs.car import Car
 from gymnasium_search_race.envs.search_race import SearchRaceEnv
 
 ROOT_PATH = Path(__file__).resolve().parent
@@ -99,12 +101,21 @@ MAPS = [
 
 
 class MadPodRacingEnv(SearchRaceEnv):
-    def __init__(self, render_mode: str | None = None) -> None:
+    def __init__(
+        self,
+        render_mode: str | None = None,
+        opponent_path: str | Path | None = None,
+        is_opponent_blocker: bool = False,
+    ) -> None:
         super().__init__(render_mode=render_mode)
         self.car_max_thrust = 100
         self.car_thrust_upper_bound = 1000
+
         self.background_img_path = ASSETS_PATH / "background.jpg"
         self.car_img_path = ASSETS_PATH / "space_ship_runner.png"
+
+        self.opponent_model = PPO.load(opponent_path) if opponent_path else None
+        self.is_opponent_blocker = is_opponent_blocker
 
     def _generate_checkpoints(
         self,
@@ -120,9 +131,45 @@ class MadPodRacingEnv(SearchRaceEnv):
         delta = self.np_random.integers(-30, 31, checkpoints.shape)
         return checkpoints + delta
 
+    def _generate_car(self) -> None:
+        # https://github.com/robostac/coders-strike-back-referee/blob/master/csbref.go#L407
+        self.cars = []
+
+        cp1_minus_cp0 = self.checkpoints[1] - self.checkpoints[0]
+        distance = np.linalg.norm(cp1_minus_cp0)
+        cp1_minus_cp0 /= distance
+
+        self.car = Car(
+            x=self.checkpoints[0][0] + cp1_minus_cp0[1] * 500,
+            y=self.checkpoints[0][1] + cp1_minus_cp0[0] * -500,
+            angle=0,
+            current_checkpoint=0,
+        )
+        self.car.angle = self.car.get_angle(
+            x=self.checkpoints[1][0],
+            y=self.checkpoints[1][1],
+        )
+        self.cars.append(self.car)
+
+        if self.opponent_model:
+            self.opponent_car = Car(
+                x=self.checkpoints[0][0] + cp1_minus_cp0[1] * 1500,
+                y=self.checkpoints[0][1] + cp1_minus_cp0[0] * -1500,
+                angle=0,
+                current_checkpoint=0,
+            )
+            self.opponent_car.angle = self.opponent_car.get_angle(
+                x=self.checkpoints[1][0],
+                y=self.checkpoints[1][1],
+            )
+            self.cars.append(self.opponent_car)
+        else:
+            self.opponent_car = None
+
     def _adjust_car(self) -> None:
-        self.car.round_position()
-        self.car.truncate_speed(friction=self.car_friction)
+        for car in self.cars:
+            car.round_position()
+            car.truncate_speed(friction=self.car_friction)
 
 
 class MadPodRacingDiscreteEnv(MadPodRacingEnv):
