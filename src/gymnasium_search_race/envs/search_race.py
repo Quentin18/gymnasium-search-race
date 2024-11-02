@@ -225,18 +225,21 @@ class SearchRaceEnv(gym.Env):
         if self.render_mode == "rgb_array":
             return self._render_frame()
 
-    def _load_background_img(self) -> pygame.Surface:
-        background_img = pygame.image.load(self.background_img_path)
-        return pygame.transform.scale_by(
-            background_img,
-            (self.width / SCALE_FACTOR) / background_img.get_width(),
+    @staticmethod
+    def _load_img(filename: str | Path, width: int) -> pygame.Surface:
+        img = pygame.image.load(filename)
+        return pygame.transform.scale_by(img, (width / SCALE_FACTOR) / img.get_width())
+
+    def _load_background_img(self) -> None:
+        self.background_img = self._load_img(
+            filename=self.background_img_path,
+            width=self.width,
         )
 
-    def _load_car_img(self) -> pygame.Surface:
-        car_img = pygame.image.load(self.car_img_path)
-        return pygame.transform.scale_by(
-            car_img,
-            (self.checkpoint_radius / SCALE_FACTOR) / car_img.get_width(),
+    def _load_car_img(self) -> None:
+        self.car_img = self._load_img(
+            filename=self.car_img_path,
+            width=self.checkpoint_radius,
         )
 
     def _draw_checkpoints(self, canvas: pygame.Surface) -> None:
@@ -326,10 +329,10 @@ class SearchRaceEnv(gym.Env):
             )
 
         if self.background_img is None:
-            self.background_img = self._load_background_img()
+            self._load_background_img()
 
         if self.car_img is None:
-            self.car_img = self._load_car_img()
+            self._load_car_img()
 
         canvas = pygame.Surface(window_size)
         canvas.blit(self.background_img, (0, 0))

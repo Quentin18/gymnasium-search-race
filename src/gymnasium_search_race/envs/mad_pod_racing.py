@@ -3,11 +3,12 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+import pygame
 from gymnasium import spaces
 from stable_baselines3 import PPO
 
 from gymnasium_search_race.envs.car import Car
-from gymnasium_search_race.envs.search_race import SearchRaceEnv
+from gymnasium_search_race.envs.search_race import SCALE_FACTOR, SearchRaceEnv
 
 ROOT_PATH = Path(__file__).resolve().parent
 ASSETS_PATH = ROOT_PATH / "assets" / "mad_pod_racing"
@@ -113,6 +114,7 @@ class MadPodRacingEnv(SearchRaceEnv):
 
         self.background_img_path = ASSETS_PATH / "background.jpg"
         self.car_img_path = ASSETS_PATH / "space_ship_runner.png"
+        self.opponent_car_img_path = ASSETS_PATH / "space_ship_blocker.png"
 
         self.opponent_model = PPO.load(opponent_path) if opponent_path else None
         self.is_opponent_blocker = is_opponent_blocker
@@ -170,6 +172,27 @@ class MadPodRacingEnv(SearchRaceEnv):
         for car in self.cars:
             car.round_position()
             car.truncate_speed(friction=self.car_friction)
+
+    def _load_car_img(self) -> None:
+        super()._load_car_img()
+        self.opponent_car_img = (
+            self._load_img(
+                filename=self.opponent_car_img_path,
+                width=self.checkpoint_radius,
+            )
+            if self.opponent_car
+            else None
+        )
+
+    def _draw_car(self, canvas: pygame.Surface) -> None:
+        for car, car_img in zip(self.cars, (self.car_img, self.opponent_car_img)):
+            canvas.blit(
+                pygame.transform.rotate(car_img, angle=-car.angle - 90),
+                (
+                    car.x / SCALE_FACTOR - car_img.get_width() / 2,
+                    car.y / SCALE_FACTOR - car_img.get_height() / 2,
+                ),
+            )
 
 
 class MadPodRacingDiscreteEnv(MadPodRacingEnv):
