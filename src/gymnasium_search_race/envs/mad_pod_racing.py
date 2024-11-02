@@ -1,6 +1,6 @@
 from itertools import product
 from pathlib import Path
-from typing import Any
+from typing import Any, SupportsFloat
 
 import numpy as np
 import pygame
@@ -172,6 +172,60 @@ class MadPodRacingEnv(SearchRaceEnv):
         for car in self.cars:
             car.round_position()
             car.truncate_speed(friction=self.car_friction)
+
+    def _get_car_obs(self, car: Car) -> np.ndarray:
+        next_checkpoint_index = (car.current_checkpoint + 1) % len(self.checkpoints)
+        next_next_checkpoint_index = (next_checkpoint_index + 1) % len(self.checkpoints)
+        return np.array(
+            [
+                float(car.current_checkpoint >= (self.total_checkpoints - 1)),
+                self.checkpoints[next_checkpoint_index][0] / self.width,
+                self.checkpoints[next_checkpoint_index][1] / self.height,
+                self.checkpoints[next_next_checkpoint_index][0] / self.width,
+                self.checkpoints[next_next_checkpoint_index][1] / self.height,
+                car.x / self.width,
+                car.y / self.height,
+                car.vx / self.car_thrust_upper_bound,
+                car.vy / self.car_thrust_upper_bound,
+                car.angle / self.car_angle_upper_bound,
+            ],
+            dtype=np.float64,
+        )
+
+    def _apply_angle_thrust(self, angle: float, thrust: float) -> None:
+        super()._apply_angle_thrust(angle=angle, thrust=thrust)
+
+        if self.opponent_car:
+            observation = self._get_car_obs(car=self.opponent_car)
+            action, _ = self.opponent_model.predict(
+                observation=observation,
+                deterministic=True,
+            )
+            angle, thrust = self._convert_action_to_angle_thrust(action=action)
+            self.opponent_car.rotate(angle=angle)
+            self.opponent_car.thrust_towards_heading(thrust=thrust)
+
+    def _move_car(self) -> SupportsFloat:
+        reward = super()._move_car()
+
+        if not self.opponent_car:
+            return reward
+
+        checkpoint_index = (self.opponent_car.current_checkpoint + 1) % len(
+            self.checkpoints
+        )
+
+        self.opponent_car.move(t=1.0)
+        if (
+            self.opponent_car.distance(
+                x=self.checkpoints[checkpoint_index][0],
+                y=self.checkpoints[checkpoint_index][1],
+            )
+            <= self.checkpoint_radius
+        ):
+            self.opponent_car.current_checkpoint += 1
+
+        return reward
 
     def _load_car_img(self) -> None:
         super()._load_car_img()

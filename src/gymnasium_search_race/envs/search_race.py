@@ -182,23 +182,17 @@ class SearchRaceEnv(gym.Env):
 
         return angle, thrust
 
+    def _apply_angle_thrust(self, angle: float, thrust: float) -> None:
+        self.car.rotate(angle=angle)
+        self.car.thrust_towards_heading(thrust=thrust)
+
     def _get_next_checkpoint_index(self) -> int:
         return (self.car.current_checkpoint + 1) % len(self.checkpoints)
 
-    def step(
-        self,
-        action: ActType,
-    ) -> tuple[ObsType, SupportsFloat, bool, bool, dict[str, Any]]:
-        assert self.action_space.contains(
-            action
-        ), f"{action!r} ({type(action)}) invalid"
-
-        angle, thrust = self._convert_action_to_angle_thrust(action=action)
-        checkpoint_index = self._get_next_checkpoint_index()
+    def _move_car(self) -> SupportsFloat:
         reward = -0.1
+        checkpoint_index = self._get_next_checkpoint_index()
 
-        self.car.rotate(angle=angle)
-        self.car.thrust_towards_heading(thrust=thrust)
         self.car.move(t=1.0)
         if (
             self.car.distance(
@@ -210,6 +204,20 @@ class SearchRaceEnv(gym.Env):
             self.car.current_checkpoint += 1
             reward = 1000 / self.total_checkpoints
 
+        return reward
+
+    def step(
+        self,
+        action: ActType,
+    ) -> tuple[ObsType, SupportsFloat, bool, bool, dict[str, Any]]:
+        assert self.action_space.contains(
+            action
+        ), f"{action!r} ({type(action)}) invalid"
+
+        angle, thrust = self._convert_action_to_angle_thrust(action=action)
+
+        self._apply_angle_thrust(angle=angle, thrust=thrust)
+        reward = self._move_car()
         self._adjust_car()
 
         observation = self._get_obs()
