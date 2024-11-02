@@ -72,11 +72,13 @@ class SearchRaceEnv(gym.Env):
         self.car_img_path = ASSETS_PATH / "car.png"
 
     def _get_obs(self) -> ObsType:
-        next_checkpoint_index = (self.current_checkpoint + 1) % len(self.checkpoints)
+        next_checkpoint_index = (self.car.current_checkpoint + 1) % len(
+            self.checkpoints
+        )
         next_next_checkpoint_index = (next_checkpoint_index + 1) % len(self.checkpoints)
         return np.array(
             [
-                float(self.current_checkpoint >= (self.total_checkpoints - 1)),
+                float(self.car.current_checkpoint >= (self.total_checkpoints - 1)),
                 self.checkpoints[next_checkpoint_index][0] / self.width,
                 self.checkpoints[next_checkpoint_index][1] / self.height,
                 self.checkpoints[next_next_checkpoint_index][0] / self.width,
@@ -100,7 +102,7 @@ class SearchRaceEnv(gym.Env):
             "car_angle_upper_bound": self.car_angle_upper_bound,
             "checkpoints": self.checkpoints,
             "total_checkpoints": self.total_checkpoints,
-            "current_checkpoint": self.current_checkpoint,
+            "current_checkpoint": self.car.current_checkpoint,
         }
 
     def _generate_checkpoints(
@@ -144,11 +146,11 @@ class SearchRaceEnv(gym.Env):
 
         self.checkpoints = self._generate_checkpoints(options=options)
         self.total_checkpoints = len(self.checkpoints) * self.laps
-        self.current_checkpoint = 0
         self.car = Car(
             x=self.checkpoints[0][0],
             y=self.checkpoints[0][1],
             angle=0,
+            current_checkpoint=0,
         )
         self.car.angle = self.car.get_angle(
             x=self.checkpoints[1][0],
@@ -178,7 +180,7 @@ class SearchRaceEnv(gym.Env):
         return angle, thrust
 
     def _get_next_checkpoint_index(self) -> int:
-        return (self.current_checkpoint + 1) % len(self.checkpoints)
+        return (self.car.current_checkpoint + 1) % len(self.checkpoints)
 
     def step(
         self,
@@ -202,13 +204,13 @@ class SearchRaceEnv(gym.Env):
             )
             <= self.checkpoint_radius
         ):
-            self.current_checkpoint += 1
+            self.car.current_checkpoint += 1
             reward = 1000 / self.total_checkpoints
 
         self._adjust_car()
 
         observation = self._get_obs()
-        terminated = self.current_checkpoint >= self.total_checkpoints
+        terminated = self.car.current_checkpoint >= self.total_checkpoints
         info = self._get_info()
 
         if self.render_mode == "human":
@@ -270,6 +272,9 @@ class SearchRaceEnv(gym.Env):
 
     def _draw_car_text(self, canvas: pygame.Surface) -> None:
         for i, (name, value) in enumerate(asdict(self.car).items()):
+            if name == "current_checkpoint":
+                continue
+
             text_surface = self.font.render(
                 f"{name:<6} {value:0.0f}",
                 True,
@@ -285,7 +290,7 @@ class SearchRaceEnv(gym.Env):
 
     def _draw_checkpoint_text(self, canvas: pygame.Surface) -> None:
         text_surface = self.font.render(
-            f"{self._get_next_checkpoint_index()} ({self.current_checkpoint})",
+            f"{self._get_next_checkpoint_index()} ({self.car.current_checkpoint})",
             True,
             FONT_COLOR,
         )

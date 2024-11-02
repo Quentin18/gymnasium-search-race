@@ -10,6 +10,7 @@ class Car:
     angle: float  # in degrees
     vx: float = 0.0
     vy: float = 0.0
+    current_checkpoint: int = 0
 
     def get_angle(self, x: float, y: float) -> float:
         return np.rad2deg(np.atan2(y - self.y, x - self.x)) % 360
