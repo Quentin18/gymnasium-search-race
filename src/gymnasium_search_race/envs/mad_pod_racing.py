@@ -5,6 +5,7 @@ from typing import Any, SupportsFloat
 import numpy as np
 import pygame
 from gymnasium import spaces
+from gymnasium.core import ObsType
 from stable_baselines3 import PPO
 
 from gymnasium_search_race.envs.models import Car, Unit
@@ -106,7 +107,6 @@ class MadPodRacingEnv(SearchRaceEnv):
         self,
         render_mode: str | None = None,
         opponent_path: str | Path | None = None,
-        is_opponent_blocker: bool = False,
     ) -> None:
         super().__init__(render_mode=render_mode)
         self.car_max_thrust = 100
@@ -119,7 +119,48 @@ class MadPodRacingEnv(SearchRaceEnv):
         self.opponent_car_img_path = ASSETS_PATH / "space_ship_blocker.png"
 
         self.opponent_model = PPO.load(opponent_path) if opponent_path else None
-        self.is_opponent_blocker = is_opponent_blocker
+
+    def _get_car_obs(self, car: Car) -> ObsType:
+        return np.array(
+            [
+                car.x / self.width,
+                car.y / self.height,
+                car.vx / self.car_thrust_upper_bound,
+                car.vy / self.car_thrust_upper_bound,
+                car.angle / self.car_angle_upper_bound,
+            ],
+            dtype=np.float64,
+        )
+
+    def _get_runner_obs(self, car_index: int) -> ObsType:
+        car = self.cars[car_index]
+        car_obs = self._get_car_obs(car=car)
+
+        next_checkpoint_index = (car.current_checkpoint + 1) % len(self.checkpoints)
+        next_next_checkpoint_index = (next_checkpoint_index + 1) % len(self.checkpoints)
+        checkpoints_obs = np.array(
+            [
+                float(car.current_checkpoint >= (self.total_checkpoints - 1)),
+                self.checkpoints[next_checkpoint_index][0] / self.width,
+                self.checkpoints[next_checkpoint_index][1] / self.height,
+                self.checkpoints[next_next_checkpoint_index][0] / self.width,
+                self.checkpoints[next_next_checkpoint_index][1] / self.height,
+            ],
+            dtype=np.float64,
+        )
+
+        return np.concatenate((checkpoints_obs, car_obs))
+
+    def _get_blocker_obs(self, car_index: int) -> ObsType:
+        runner_obs = self._get_runner_obs(car_index=(car_index + 1) % len(self.cars))
+        blocker_car = self._get_car_obs(car=self.cars[car_index])
+        return np.concatenate((runner_obs, blocker_car))
+
+    def _get_obs(self) -> ObsType:
+        return self._get_runner_obs(car_index=0)
+
+    def _get_opponent_obs(self) -> ObsType:
+        return self._get_blocker_obs(car_index=1)
 
     def _generate_checkpoints(
         self,
@@ -171,30 +212,11 @@ class MadPodRacingEnv(SearchRaceEnv):
             car.round_position()
             car.truncate_speed(friction=self.car_friction)
 
-    def _get_car_obs(self, car: Car) -> np.ndarray:
-        next_checkpoint_index = (car.current_checkpoint + 1) % len(self.checkpoints)
-        next_next_checkpoint_index = (next_checkpoint_index + 1) % len(self.checkpoints)
-        return np.array(
-            [
-                float(car.current_checkpoint >= (self.total_checkpoints - 1)),
-                self.checkpoints[next_checkpoint_index][0] / self.width,
-                self.checkpoints[next_checkpoint_index][1] / self.height,
-                self.checkpoints[next_next_checkpoint_index][0] / self.width,
-                self.checkpoints[next_next_checkpoint_index][1] / self.height,
-                car.x / self.width,
-                car.y / self.height,
-                car.vx / self.car_thrust_upper_bound,
-                car.vy / self.car_thrust_upper_bound,
-                car.angle / self.car_angle_upper_bound,
-            ],
-            dtype=np.float64,
-        )
-
     def _apply_angle_thrust(self, angle: float, thrust: float) -> None:
         super()._apply_angle_thrust(angle=angle, thrust=thrust)
 
         if self.opponent_car:
-            observation = self._get_car_obs(car=self.opponent_car)
+            observation = self._get_opponent_obs()
             action, _ = self.opponent_model.predict(observation, deterministic=True)
             angle, thrust = self._convert_action_to_angle_thrust(action=action)
             self.opponent_car.rotate(angle=angle)
@@ -287,6 +309,28 @@ class MadPodRacingEnv(SearchRaceEnv):
                     car.y / SCALE_FACTOR - car_img.get_height() / 2,
                 ),
             )
+
+
+class MadPodRacingBlockerEnv(MadPodRacingEnv):
+    def __init__(
+        self,
+        opponent_path: str | Path,
+        render_mode: str | None = None,
+    ) -> None:
+        super().__init__(render_mode=render_mode, opponent_path=opponent_path)
+
+        # opponent runner observation, blocker car
+        self.observation_space = spaces.Box(
+            low=np.array([0, 0, 0, 0, 0, 0, 0, -1, -1, 0, 0, 0, -1, -1, 0]),
+            high=np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]),
+            dtype=np.float64,
+        )
+
+    def _get_obs(self) -> ObsType:
+        return self._get_blocker_obs(car_index=0)
+
+    def _get_opponent_obs(self) -> ObsType:
+        return self._get_runner_obs(car_index=1)
 
 
 class MadPodRacingDiscreteEnv(MadPodRacingEnv):
