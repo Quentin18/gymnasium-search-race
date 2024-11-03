@@ -1,6 +1,6 @@
 import pytest
 
-from gymnasium_search_race.envs.car import Car
+from gymnasium_search_race.envs.models import Car
 
 
 @pytest.mark.parametrize(
@@ -14,6 +14,6 @@ from gymnasium_search_race.envs.car import Car
         ),
     ),
 )
-def test_get_angle(car: Car, x: float, y: float, expected: float):
+def test_car_get_angle(car: Car, x: float, y: float, expected: float):
     actual = car.get_angle(x=x, y=y)
     assert round(actual) == expected

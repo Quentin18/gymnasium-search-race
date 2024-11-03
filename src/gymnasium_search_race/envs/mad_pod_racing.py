@@ -7,7 +7,7 @@ import pygame
 from gymnasium import spaces
 from stable_baselines3 import PPO
 
-from gymnasium_search_race.envs.car import Car
+from gymnasium_search_race.envs.models import Car, Unit
 from gymnasium_search_race.envs.search_race import SCALE_FACTOR, SearchRaceEnv
 
 ROOT_PATH = Path(__file__).resolve().parent
@@ -111,6 +111,8 @@ class MadPodRacingEnv(SearchRaceEnv):
         super().__init__(render_mode=render_mode)
         self.car_max_thrust = 100
         self.car_thrust_upper_bound = 1000
+        self.car_radius = 400
+        self.min_impulse = 120.0
 
         self.background_img_path = ASSETS_PATH / "background.jpg"
         self.car_img_path = ASSETS_PATH / "space_ship_runner.png"
@@ -144,8 +146,6 @@ class MadPodRacingEnv(SearchRaceEnv):
         self.car = Car(
             x=self.checkpoints[0][0] + cp1_minus_cp0[1] * 500,
             y=self.checkpoints[0][1] + cp1_minus_cp0[0] * -500,
-            angle=0,
-            current_checkpoint=0,
         )
         self.car.angle = self.car.get_angle(
             x=self.checkpoints[1][0],
@@ -157,8 +157,6 @@ class MadPodRacingEnv(SearchRaceEnv):
             self.opponent_car = Car(
                 x=self.checkpoints[0][0] + cp1_minus_cp0[1] * 1500,
                 y=self.checkpoints[0][1] + cp1_minus_cp0[0] * -1500,
-                angle=0,
-                current_checkpoint=0,
             )
             self.opponent_car.angle = self.opponent_car.get_angle(
                 x=self.checkpoints[1][0],
@@ -197,33 +195,68 @@ class MadPodRacingEnv(SearchRaceEnv):
 
         if self.opponent_car:
             observation = self._get_car_obs(car=self.opponent_car)
-            action, _ = self.opponent_model.predict(
-                observation=observation,
-                deterministic=True,
-            )
+            action, _ = self.opponent_model.predict(observation, deterministic=True)
             angle, thrust = self._convert_action_to_angle_thrust(action=action)
             self.opponent_car.rotate(angle=angle)
             self.opponent_car.thrust_towards_heading(thrust=thrust)
 
     def _move_car(self) -> SupportsFloat:
-        reward = super()._move_car()
-
         if not self.opponent_car:
-            return reward
+            return super()._move_car()
 
-        checkpoint_index = (self.opponent_car.current_checkpoint + 1) % len(
-            self.checkpoints
-        )
+        reward = -0.1
+        t = 0.0
 
-        self.opponent_car.move(t=1.0)
-        if (
-            self.opponent_car.distance(
-                x=self.checkpoints[checkpoint_index][0],
-                y=self.checkpoints[checkpoint_index][1],
+        while t < 1.0:
+            first_collision = None
+
+            car_collision = self.car.get_collision(
+                self.opponent_car,
+                radius=2 * self.car_radius,
             )
-            <= self.checkpoint_radius
-        ):
-            self.opponent_car.current_checkpoint += 1
+            if car_collision is not None and car_collision.time + t < 1.0:
+                first_collision = car_collision
+
+            for car in self.cars:
+                checkpoint_index = (car.current_checkpoint + 1) % len(self.checkpoints)
+                next_checkpoint = Unit(
+                    x=self.checkpoints[checkpoint_index][0],
+                    y=self.checkpoints[checkpoint_index][1],
+                )
+                checkpoint_collision = car.get_collision(
+                    next_checkpoint,
+                    radius=self.checkpoint_radius,
+                )
+
+                if (
+                    checkpoint_collision is not None
+                    and checkpoint_collision.time + t < 1.0
+                    and (
+                        first_collision is None
+                        or checkpoint_collision.time < first_collision.time
+                    )
+                ):
+                    first_collision = checkpoint_collision
+
+            if first_collision is None:
+                for car in self.cars:
+                    car.move(t=1.0 - t)
+                break
+
+            for car in self.cars:
+                car.move(t=first_collision.time)
+
+            if isinstance(first_collision.second_unit, Car):
+                first_collision.first_unit.bounce(
+                    first_collision.second_unit,
+                    min_impulse=self.min_impulse,
+                    min_radius=2 * self.car_radius,
+                )
+            else:  # checkpoint collision
+                first_collision.first_unit.current_checkpoint += 1
+                reward = 1000 / self.total_checkpoints
+
+            t += first_collision.time
 
         return reward
 
@@ -240,6 +273,13 @@ class MadPodRacingEnv(SearchRaceEnv):
 
     def _draw_car(self, canvas: pygame.Surface) -> None:
         for car, car_img in zip(self.cars, (self.car_img, self.opponent_car_img)):
+            pygame.draw.circle(
+                surface=canvas,
+                color="white",
+                center=[car.x / SCALE_FACTOR, car.y / SCALE_FACTOR],
+                radius=self.car_radius / SCALE_FACTOR,
+                width=40 // SCALE_FACTOR,
+            )
             canvas.blit(
                 pygame.transform.rotate(car_img, angle=-car.angle - 90),
                 (

@@ -10,7 +10,7 @@ import pygame
 from gymnasium import spaces
 from gymnasium.core import ActType, ObsType, RenderFrame
 
-from gymnasium_search_race.envs.car import Car
+from gymnasium_search_race.envs.models import Car, Point
 
 SCALE_FACTOR = 20
 CHECKPOINT_COLOR = (52, 52, 52)
@@ -135,8 +135,6 @@ class SearchRaceEnv(gym.Env):
         self.car = Car(
             x=self.checkpoints[0][0],
             y=self.checkpoints[0][1],
-            angle=0,
-            current_checkpoint=0,
         )
         self.car.angle = self.car.get_angle(
             x=self.checkpoints[1][0],
@@ -196,8 +194,10 @@ class SearchRaceEnv(gym.Env):
         self.car.move(t=1.0)
         if (
             self.car.distance(
-                x=self.checkpoints[checkpoint_index][0],
-                y=self.checkpoints[checkpoint_index][1],
+                Point(
+                    x=self.checkpoints[checkpoint_index][0],
+                    y=self.checkpoints[checkpoint_index][1],
+                )
             )
             <= self.checkpoint_radius
         ):
