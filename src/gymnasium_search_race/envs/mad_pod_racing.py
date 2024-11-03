@@ -222,15 +222,22 @@ class MadPodRacingEnv(SearchRaceEnv):
             self.opponent_car.rotate(angle=angle)
             self.opponent_car.thrust_towards_heading(thrust=thrust)
 
+    def _get_default_reward(self) -> SupportsFloat:
+        return -0.1
+
+    def _get_checkpoint_visit_reward(self, car_index: int) -> SupportsFloat:
+        return 1000 / self.total_checkpoints if car_index == 0 else 0.0
+
     def _move_car(self) -> SupportsFloat:
         if not self.opponent_car:
             return super()._move_car()
 
-        reward = -0.1
+        reward = self._get_default_reward()
         t = 0.0
 
         while t < 1.0:
             first_collision = None
+            car_index = None
 
             car_collision = self.car.get_collision(
                 self.opponent_car,
@@ -239,7 +246,7 @@ class MadPodRacingEnv(SearchRaceEnv):
             if car_collision is not None and car_collision.time + t < 1.0:
                 first_collision = car_collision
 
-            for car in self.cars:
+            for i, car in enumerate(self.cars):
                 checkpoint_index = (car.current_checkpoint + 1) % len(self.checkpoints)
                 next_checkpoint = Unit(
                     x=self.checkpoints[checkpoint_index][0],
@@ -259,6 +266,7 @@ class MadPodRacingEnv(SearchRaceEnv):
                     )
                 ):
                     first_collision = checkpoint_collision
+                    car_index = i
 
             if first_collision is None:
                 for car in self.cars:
@@ -276,7 +284,7 @@ class MadPodRacingEnv(SearchRaceEnv):
                 )
             else:  # checkpoint collision
                 first_collision.first_unit.current_checkpoint += 1
-                reward = 1000 / self.total_checkpoints
+                reward += self._get_checkpoint_visit_reward(car_index=car_index)
 
             t += first_collision.time
 
@@ -331,6 +339,12 @@ class MadPodRacingBlockerEnv(MadPodRacingEnv):
 
     def _get_opponent_obs(self) -> ObsType:
         return self._get_runner_obs(car_index=1)
+
+    def _get_default_reward(self) -> SupportsFloat:
+        return 0.1
+
+    def _get_checkpoint_visit_reward(self, car_index: int) -> SupportsFloat:
+        return -1000 / self.total_checkpoints if car_index == 1 else 0.0
 
 
 class MadPodRacingDiscreteEnv(MadPodRacingEnv):
