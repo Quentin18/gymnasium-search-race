@@ -92,6 +92,9 @@ class SearchRaceEnv(gym.Env):
             dtype=np.float64,
         )
 
+    def _get_terminated(self) -> bool:
+        return self.car.current_checkpoint >= self.total_checkpoints
+
     def _get_info(self) -> dict[str, Any]:
         return {
             "width": self.width,
@@ -221,7 +224,7 @@ class SearchRaceEnv(gym.Env):
         self._adjust_car()
 
         observation = self._get_obs()
-        terminated = self.car.current_checkpoint >= self.total_checkpoints
+        terminated = self._get_terminated()
         info = self._get_info()
 
         if self.render_mode == "human":

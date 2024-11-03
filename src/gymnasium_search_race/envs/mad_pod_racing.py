@@ -162,6 +162,11 @@ class MadPodRacingEnv(SearchRaceEnv):
     def _get_opponent_obs(self) -> ObsType:
         return self._get_blocker_obs(car_index=1)
 
+    def _get_terminated(self) -> bool:
+        return any(
+            car.current_checkpoint >= self.total_checkpoints for car in self.cars
+        )
+
     def _generate_checkpoints(
         self,
         options: dict[str, Any] | None = None,
