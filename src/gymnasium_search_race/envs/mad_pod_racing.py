@@ -230,6 +230,9 @@ class MadPodRacingEnv(SearchRaceEnv):
     def _get_default_reward(self) -> SupportsFloat:
         return -0.1
 
+    def _get_collision_reward(self) -> SupportsFloat:
+        return 0.0
+
     def _get_checkpoint_visit_reward(self, car_index: int) -> SupportsFloat:
         return 1000 / self.total_checkpoints if car_index == 0 else 0.0
 
@@ -287,6 +290,7 @@ class MadPodRacingEnv(SearchRaceEnv):
                     min_impulse=self.min_impulse,
                     min_radius=2 * self.car_radius,
                 )
+                reward += self._get_collision_reward()
             else:  # checkpoint collision
                 first_collision.first_unit.current_checkpoint += 1
                 reward += self._get_checkpoint_visit_reward(car_index=car_index)
@@ -346,10 +350,13 @@ class MadPodRacingBlockerEnv(MadPodRacingEnv):
         return self._get_runner_obs(car_index=1)
 
     def _get_default_reward(self) -> SupportsFloat:
-        return 0.1
+        return 0.0
+
+    def _get_collision_reward(self) -> SupportsFloat:
+        return 50.0
 
     def _get_checkpoint_visit_reward(self, car_index: int) -> SupportsFloat:
-        return -1000 / self.total_checkpoints if car_index == 1 else 0.0
+        return 0.0
 
 
 class MadPodRacingDiscreteEnv(MadPodRacingEnv):
