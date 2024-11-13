@@ -368,7 +368,7 @@ class MadPodRacingBlockerEnv(MadPodRacingEnv):
         return 50.0
 
     def _get_checkpoint_visit_reward(self, car_index: int) -> SupportsFloat:
-        return 0.0
+        return -100.0 if car_index == 1 else 0.0
 
 
 class MadPodRacingDiscreteEnv(MadPodRacingEnv):
