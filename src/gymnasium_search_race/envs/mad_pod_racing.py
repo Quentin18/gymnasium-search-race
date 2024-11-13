@@ -101,6 +101,8 @@ MAPS = [
     ],
 ]
 
+START_POINT_MULT = [[500, -500], [-500, 500], [1500, -1500], [-1500, 1500]]
+
 
 class MadPodRacingEnv(SearchRaceEnv):
     def __init__(
@@ -185,13 +187,20 @@ class MadPodRacingEnv(SearchRaceEnv):
         # https://github.com/robostac/coders-strike-back-referee/blob/master/csbref.go#L407
         self.cars = []
 
+        start_point_mult_index = self.np_random.choice(
+            len(START_POINT_MULT),
+            size=2,
+            replace=False,
+        )
+
         cp1_minus_cp0 = self.checkpoints[1] - self.checkpoints[0]
         distance = np.linalg.norm(cp1_minus_cp0)
         cp1_minus_cp0 /= distance
 
+        car_start_point_mult = START_POINT_MULT[start_point_mult_index[0]]
         self.car = Car(
-            x=self.checkpoints[0][0] + cp1_minus_cp0[1] * 500,
-            y=self.checkpoints[0][1] + cp1_minus_cp0[0] * -500,
+            x=self.checkpoints[0][0] + cp1_minus_cp0[1] * car_start_point_mult[0],
+            y=self.checkpoints[0][1] + cp1_minus_cp0[0] * car_start_point_mult[1],
         )
         self.car.angle = self.car.get_angle(
             x=self.checkpoints[1][0],
@@ -200,9 +209,12 @@ class MadPodRacingEnv(SearchRaceEnv):
         self.cars.append(self.car)
 
         if self.opponent_model:
+            opponent_start_point_mult = START_POINT_MULT[start_point_mult_index[1]]
             self.opponent_car = Car(
-                x=self.checkpoints[0][0] + cp1_minus_cp0[1] * 1500,
-                y=self.checkpoints[0][1] + cp1_minus_cp0[0] * -1500,
+                x=self.checkpoints[0][0]
+                + cp1_minus_cp0[1] * opponent_start_point_mult[0],
+                y=self.checkpoints[0][1]
+                + cp1_minus_cp0[0] * opponent_start_point_mult[1],
             )
             self.opponent_car.angle = self.opponent_car.get_angle(
                 x=self.checkpoints[1][0],
