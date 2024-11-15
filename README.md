@@ -219,6 +219,25 @@ python -m scripts.run_test_cases \
   --record-metrics
 ```
 
+### Record a Video of a Trained Agent
+
+To record a video of a trained agent on Mad Pod Racing, execute:
+
+```bash
+python -m scripts.record_video \
+  --path rl-trained-agents/ppo/gymnasium_search_race-MadPodRacing-v0_1/best_model.zip \
+  --env gymnasium_search_race:gymnasium_search_race/MadPodRacing-v0
+```
+
+For Mad Pod Racing Blocker, execute:
+
+```bash
+python -m scripts.record_video \
+  --path rl-trained-agents/ppo/gymnasium_search_race-MadPodRacingBlocker-v0_1/best_model.zip \
+  --opponent-path rl-trained-agents/ppo/gymnasium_search_race-MadPodRacing-v0_1/best_model.zip \
+  --env gymnasium_search_race:gymnasium_search_race/MadPodRacingBlocker-v0
+```
+
 ## Tests
 
 To run tests, execute:
