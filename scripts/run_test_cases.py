@@ -87,6 +87,7 @@ def run_test_cases(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Run Search Race model on CodinGame test cases",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
         "--path",
