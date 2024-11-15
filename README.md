@@ -140,6 +140,8 @@ gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacing-v0")
 gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v0")
 ```
 
+https://github.com/user-attachments/assets/ce4b1837-4591-40dd-a203-9eec9146b94b
+
 ### Blocker
 
 The `MadPodRacingBlocker` environment can be used to train a blocker for
@@ -150,6 +152,8 @@ import gymnasium as gym
 
 gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacingBlocker-v0")
 ```
+
+https://github.com/user-attachments/assets/57387372-823f-44a2-9a03-23a9332752ab
 
 ## Usage
 
