@@ -123,6 +123,8 @@ There are 74 discrete actions corresponding to the combinations of angles from -
 
 ## Mad Pod Racing
 
+### Runner
+
 The `MadPodRacing` and `MadPodRacingDiscrete` environments can be used to train a runner for
 the [Mad Pod Racing CodinGame bot programming game](https://www.codingame.com/multiplayer/bot-programming/mad-pod-racing).
 They are similar to the `SearchRace` and `SearchRaceDiscrete` environments except the following differences:
@@ -136,6 +138,17 @@ import gymnasium as gym
 
 gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacing-v0")
 gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v0")
+```
+
+### Blocker
+
+The `MadPodRacingBlocker` environment can be used to train a blocker for
+the [Mad Pod Racing CodinGame bot programming game](https://www.codingame.com/multiplayer/bot-programming/mad-pod-racing).
+
+```python
+import gymnasium as gym
+
+gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacingBlocker-v0")
 ```
 
 ## Usage
@@ -160,6 +173,21 @@ python -m rl_zoo3.train \
   --eval-freq 20000 \
   --eval-episodes 10 \
   --gym-packages gymnasium_search_race \
+  --conf-file hyperparams/ppo.yml \
+  --progress
+```
+
+For the Mad Pod Racing game, you can add an opponent with the `opponent_path` argument:
+
+```bash
+python -m rl_zoo3.train \
+  --algo ppo \
+  --env gymnasium_search_race/MadPodRacingBlocker-v0 \
+  --tensorboard-log logs \
+  --eval-freq 20000 \
+  --eval-episodes 10 \
+  --gym-packages gymnasium_search_race \
+  --env-kwargs "opponent_path:'rl-trained-agents/ppo/gymnasium_search_race-MadPodRacing-v0_1/best_model.zip'" \
   --conf-file hyperparams/ppo.yml \
   --progress
 ```
