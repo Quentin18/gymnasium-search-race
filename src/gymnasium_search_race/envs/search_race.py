@@ -1,4 +1,5 @@
 import json
+import re
 from dataclasses import asdict
 from itertools import product
 from pathlib import Path
@@ -22,6 +23,13 @@ FONT_SIZE = 400
 ROOT_PATH = Path(__file__).resolve().parent
 ASSETS_PATH = ROOT_PATH / "assets" / "search_race"
 MAPS_PATH = ROOT_PATH / "maps"
+
+
+def get_test_ids() -> list[int]:
+    return sorted(
+        int(re.match(r"test(\d+)\.json", path.name).group(1))
+        for path in MAPS_PATH.iterdir()
+    )
 
 
 class SearchRaceEnv(gym.Env):

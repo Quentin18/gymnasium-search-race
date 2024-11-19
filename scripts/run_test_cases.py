@@ -1,20 +1,12 @@
 import argparse
 import csv
-import re
 from datetime import datetime
 from pathlib import Path
 
 import gymnasium as gym
 from stable_baselines3 import PPO
 
-from gymnasium_search_race.envs.search_race import MAPS_PATH
-
-
-def get_test_ids() -> list[int]:
-    return sorted(
-        int(re.match(r"test(\d+)\.json", path.name).group(1))
-        for path in MAPS_PATH.iterdir()
-    )
+from gymnasium_search_race.envs.search_race import get_test_ids
 
 
 def get_test_case_length(env: gym.Env, model: PPO, test_id: int) -> int:
