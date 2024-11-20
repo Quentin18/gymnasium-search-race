@@ -5,6 +5,7 @@ import gymnasium as gym
 from stable_baselines3 import PPO
 
 from gymnasium_search_race.envs.search_race import get_test_ids
+from gymnasium_search_race.wrappers import RecordBestEpisodeStatistics
 
 
 def search_best_actions_on_test_id(
@@ -14,29 +15,20 @@ def search_best_actions_on_test_id(
     total_timesteps: int = 200_000,
 ) -> list[list[int]]:
     env = gym.make(env_id, test_id=test_id)
+    env = RecordBestEpisodeStatistics(env)
     model = PPO.load(model_path, env=env)
 
     model.tensorboard_log = None
     model.verbose = 0
     model.learn(total_timesteps=total_timesteps, progress_bar=True)
 
-    actions = []
-    observation, info = env.reset()
-    terminated = truncated = False
-
-    while not terminated and not truncated:
-        action, _ = model.predict(observation=observation, deterministic=True)
-        actions.append(
-            [
-                round(action[0] * info["max_rotation_per_turn"]),
-                round(action[1] * info["car_max_thrust"]),
-            ]
-        )
-        observation, _reward, terminated, truncated, info = env.step(action)
-
-    env.close()
-
-    return actions
+    return [
+        [
+            round(action[0] * env.get_wrapper_attr("max_rotation_per_turn")),
+            round(action[1] * env.get_wrapper_attr("car_max_thrust")),
+        ]
+        for action in env.best_episode_actions
+    ]
 
 
 def search_best_actions(
