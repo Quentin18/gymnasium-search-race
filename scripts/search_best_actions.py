@@ -3,25 +3,27 @@ import json
 
 import gymnasium as gym
 from stable_baselines3 import PPO
+from stable_baselines3.common.vec_env import DummyVecEnv
+from tqdm import tqdm
 
 from gymnasium_search_race.envs.search_race import get_test_ids
 from gymnasium_search_race.wrappers import RecordBestEpisodeStatistics
 
 
 def search_best_actions_on_test_id(
+    test_id: int,
     model_path: str,
     env_id: str,
-    test_id: int,
     total_timesteps: int = 200_000,
 ) -> list[list[int]]:
-    env = gym.make(env_id, test_id=test_id)
-    env = RecordBestEpisodeStatistics(env)
-    model = PPO.load(model_path, env=env)
-
-    model.tensorboard_log = None
-    model.verbose = 0
-    model.learn(total_timesteps=total_timesteps, progress_bar=True)
-
+    env = RecordBestEpisodeStatistics(gym.make(env_id, test_id=test_id))
+    model = PPO.load(
+        model_path,
+        env=DummyVecEnv([lambda: env]),
+        verbose=0,
+        tensorboard_log=None,
+    )
+    model.learn(total_timesteps=total_timesteps)
     return [
         [
             round(action[0] * env.get_wrapper_attr("max_rotation_per_turn")),
@@ -39,15 +41,16 @@ def search_best_actions(
     total_length = 0
     actions_per_test_id = {}
 
-    for test_id in get_test_ids():
+    progress_bar = tqdm(get_test_ids(), desc="Search best actions")
+    for test_id in progress_bar:
         actions = search_best_actions_on_test_id(
+            test_id=test_id,
             model_path=model_path,
             env_id=env_id,
-            test_id=test_id,
             total_timesteps=total_timesteps,
         )
         length = len(actions)
-        print(f"Test {test_id:03}: {length}")
+        progress_bar.set_postfix({f"test_{test_id}": length})
         total_length += length
         actions_per_test_id[test_id] = actions
 
