@@ -1,4 +1,5 @@
 import argparse
+import gzip
 import json
 
 import gymnasium as gym
@@ -63,7 +64,7 @@ def write_best_actions(
     path: str,
     actions: dict[int, list[list[int]]],
 ) -> None:
-    with open(path, "w", encoding="utf-8") as json_file:
+    with gzip.open(path, "wt", encoding="utf-8") as json_file:
         json.dump(actions, json_file)
 
 
@@ -90,7 +91,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--output-path",
-        help="path to output JSON file",
+        help="path to output GZIP compressed JSON file",
     )
     args = parser.parse_args()
     best_actions = search_best_actions(
