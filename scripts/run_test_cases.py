@@ -108,7 +108,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--metrics-folder",
-        default="metrics",
+        default="data",
         help="path to metrics folder",
     )
     args = parser.parse_args()
