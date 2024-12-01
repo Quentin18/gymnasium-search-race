@@ -3,7 +3,7 @@
 [![Build Python Package](https://github.com/Quentin18/gymnasium-search-race/actions/workflows/build.yml/badge.svg)](https://github.com/Quentin18/gymnasium-search-race/actions/workflows/build.yml)
 [![Python](https://img.shields.io/pypi/pyversions/gymnasium-search-race.svg)](https://badge.fury.io/py/gymnasium-search-race)
 [![PyPI](https://badge.fury.io/py/gymnasium-search-race.svg)](https://badge.fury.io/py/gymnasium-search-race)
-![PyPI Downloads](https://static.pepy.tech/badge/gymnasium-search-race)
+[![PyPI Downloads](https://static.pepy.tech/badge/gymnasium-search-race)](https://pepy.tech/projects/gymnasium-search-race)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://pre-commit.com/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
