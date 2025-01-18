@@ -1,5 +1,5 @@
 # https://stable-baselines3.readthedocs.io/en/master/modules/ppo.html#parameters
-gymnasium_search_race/SearchRace-v1: &search-race-defaults
+gymnasium_search_race/SearchRace-v2: &search-race-defaults
   n_timesteps: !!float 1e7
   policy: "MlpPolicy"
   n_steps: 4096
@@ -20,7 +20,7 @@ gymnasium_search_race/SearchRace-v1: &search-race-defaults
   )"
   n_envs: 8
 
-gymnasium_search_race/SearchRaceDiscrete-v1:
+gymnasium_search_race/SearchRaceDiscrete-v2:
   <<: *search-race-defaults
 
 gymnasium_search_race/MadPodRacing-v0:

@@ -95,14 +95,20 @@ class Car(Unit):
     angle: float = 0.0  # in degrees
     current_checkpoint: int = 0
 
+    def radians(self) -> float:
+        return np.radians(self.angle)
+
+    def get_radians(self, x: float, y: float) -> float:
+        return np.atan2(y - self.y, x - self.x)
+
     def get_angle(self, x: float, y: float) -> float:
-        return np.rad2deg(np.atan2(y - self.y, x - self.x)) % 360
+        return np.degrees(self.get_radians(x, y)) % 360
 
     def rotate(self, angle: float) -> None:
         self.angle = (self.angle + angle) % 360
 
     def thrust_towards_heading(self, thrust: float) -> None:
-        radians = np.radians(self.angle)
+        radians = self.radians()
         self.vx += np.cos(radians) * thrust
         self.vy += np.sin(radians) * thrust
 

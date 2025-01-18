@@ -116,6 +116,12 @@ class MadPodRacingEnv(SearchRaceEnv):
         self.car_radius = 400
         self.min_impulse = 120.0
 
+        self.observation_space = spaces.Box(
+            low=np.array([0, 0, 0, 0, 0, 0, 0, -1, -1, 0]),
+            high=np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1]),
+            dtype=np.float64,
+        )
+
         self.background_img_path = ASSETS_PATH / "background.jpg"
         self.car_img_path = ASSETS_PATH / "space_ship_runner.png"
         self.opponent_car_img_path = ASSETS_PATH / "space_ship_blocker.png"

@@ -48,14 +48,14 @@ class SearchRaceEnv(gym.Env):
         self.car_max_thrust = 200
         self.car_friction = 0.15
 
+        self.distance_upper_bound = np.linalg.norm([self.width, self.height])
         self.car_thrust_upper_bound = 2000
         self.car_angle_upper_bound = 360
 
-        # is last checkpoint, next checkpoint, checkpoint after next checkpoint
-        # position, horizontal speed, vertical speed, angle
         self.observation_space = spaces.Box(
-            low=np.array([0, 0, 0, 0, 0, 0, 0, -1, -1, 0]),
-            high=np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1]),
+            low=-1,
+            high=1,
+            shape=(8,),
             dtype=np.float64,
         )
 
@@ -80,25 +80,36 @@ class SearchRaceEnv(gym.Env):
         self.car_img_path = ASSETS_PATH / "car.png"
 
     def _get_obs(self) -> ObsType:
-        next_checkpoint_index = (self.car.current_checkpoint + 1) % len(
-            self.checkpoints
-        )
-        next_next_checkpoint_index = (next_checkpoint_index + 1) % len(self.checkpoints)
-        return np.array(
+        obs = []
+        car_radians = self.car.radians()
+
+        # position and angle of the next 2 checkpoints relative to the car
+        for i in range(2):
+            x_cp, y_cp = self.checkpoints[
+                (self.car.current_checkpoint + i + 1) % len(self.checkpoints)
+            ]
+            obs.extend(
+                [
+                    (x_cp - self.car.x) / self.distance_upper_bound,
+                    (y_cp - self.car.y) / self.distance_upper_bound,
+                    (
+                        (self.car.get_radians(x_cp, y_cp) - car_radians + np.pi)
+                        % (2 * np.pi)
+                        - np.pi
+                    )
+                    / np.pi,
+                ]
+            )
+
+        # car speed
+        obs.extend(
             [
-                float(self.car.current_checkpoint >= (self.total_checkpoints - 1)),
-                self.checkpoints[next_checkpoint_index][0] / self.width,
-                self.checkpoints[next_checkpoint_index][1] / self.height,
-                self.checkpoints[next_next_checkpoint_index][0] / self.width,
-                self.checkpoints[next_next_checkpoint_index][1] / self.height,
-                self.car.x / self.width,
-                self.car.y / self.height,
                 self.car.vx / self.car_thrust_upper_bound,
                 self.car.vy / self.car_thrust_upper_bound,
-                self.car.angle / self.car_angle_upper_bound,
-            ],
-            dtype=np.float64,
+            ]
         )
+
+        return np.array(obs, dtype=np.float64)
 
     def _get_terminated(self) -> bool:
         return self.car.current_checkpoint >= self.total_checkpoints
@@ -107,8 +118,14 @@ class SearchRaceEnv(gym.Env):
         return {
             "width": self.width,
             "height": self.height,
+            "x": self.car.x,
+            "y": self.car.y,
+            "vx": self.car.vx,
+            "vy": self.car.vy,
+            "angle": self.car.angle,
             "max_rotation_per_turn": self.max_rotation_per_turn,
             "car_max_thrust": self.car_max_thrust,
+            "distance_upper_bound": self.distance_upper_bound,
             "car_thrust_upper_bound": self.car_thrust_upper_bound,
             "car_angle_upper_bound": self.car_angle_upper_bound,
             "checkpoints": self.checkpoints,
