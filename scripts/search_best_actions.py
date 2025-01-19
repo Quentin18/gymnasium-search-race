@@ -25,13 +25,20 @@ def search_best_actions_on_test_id(
         tensorboard_log=None,
     )
     model.learn(total_timesteps=total_timesteps)
-    return [
-        [
-            round(action[0] * env.get_wrapper_attr("max_rotation_per_turn")),
-            round(action[1] * env.get_wrapper_attr("car_max_thrust")),
-        ]
-        for action in env.best_episode_actions
-    ]
+
+    actions = []
+    for action in env.best_episode_actions:
+        if "Discrete" in env_id:
+            action = env.get_wrapper_attr("actions")[action]
+
+        actions.append(
+            [
+                round(action[0] * env.get_wrapper_attr("max_rotation_per_turn")),
+                round(action[1] * env.get_wrapper_attr("car_max_thrust")),
+            ]
+        )
+
+    return actions
 
 
 def search_best_actions(
@@ -80,7 +87,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--env",
-        default="gymnasium_search_race:gymnasium_search_race/SearchRace-v1",
+        default="gymnasium_search_race:gymnasium_search_race/SearchRace-v2",
         help="environment id",
     )
     parser.add_argument(
