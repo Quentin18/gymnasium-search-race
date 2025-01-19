@@ -108,9 +108,10 @@ class MadPodRacingEnv(SearchRaceEnv):
     def __init__(
         self,
         render_mode: str | None = None,
+        laps: int = 3,
         opponent_path: str | Path | None = None,
     ) -> None:
-        super().__init__(render_mode=render_mode)
+        super().__init__(render_mode=render_mode, laps=laps)
         self.car_max_thrust = 100
         self.car_thrust_upper_bound = 1000
         self.car_radius = 400
@@ -378,8 +379,12 @@ class MadPodRacingBlockerEnv(MadPodRacingEnv):
 
 
 class MadPodRacingDiscreteEnv(MadPodRacingEnv):
-    def __init__(self, render_mode: str | None = None) -> None:
-        super().__init__(render_mode=render_mode)
+    def __init__(
+        self,
+        render_mode: str | None = None,
+        laps: int = 3,
+    ) -> None:
+        super().__init__(render_mode=render_mode, laps=laps)
 
         self.actions = list(
             product(

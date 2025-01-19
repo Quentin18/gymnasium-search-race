@@ -38,9 +38,10 @@ class SearchRaceEnv(gym.Env):
     def __init__(
         self,
         render_mode: str | None = None,
+        laps: int = 3,
         test_id: int | None = None,
     ) -> None:
-        self.laps = 3
+        self.laps = laps
         self.width = 16000
         self.height = 9000
         self.checkpoint_radius = 600
@@ -399,9 +400,10 @@ class SearchRaceDiscreteEnv(SearchRaceEnv):
     def __init__(
         self,
         render_mode: str | None = None,
+        laps: int = 3,
         test_id: int | None = None,
     ) -> None:
-        super().__init__(render_mode=render_mode, test_id=test_id)
+        super().__init__(render_mode=render_mode, laps=laps, test_id=test_id)
 
         self.actions = list(
             product(
