@@ -217,7 +217,7 @@ class SearchRaceEnv(gym.Env):
         return (self.car.current_checkpoint + 1) % len(self.checkpoints)
 
     def _move_car(self) -> SupportsFloat:
-        reward = -0.1
+        reward = 0
         checkpoint_index = self._get_next_checkpoint_index()
 
         self.car.move(t=1.0)
@@ -231,7 +231,7 @@ class SearchRaceEnv(gym.Env):
             <= self.checkpoint_radius
         ):
             self.car.current_checkpoint += 1
-            reward = 1000 / self.total_checkpoints
+            reward += 1
 
         return reward
 
