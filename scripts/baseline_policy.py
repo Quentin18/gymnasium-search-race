@@ -7,12 +7,9 @@ from gymnasium.core import ActType, ObsType
 
 
 def get_next_action(observation: ObsType, info: dict[str, Any]) -> ActType:
-    next_checkpoint_pos = observation[1:3] * [info["width"], info["height"]]
-    car_pos = observation[5:7] * [info["width"], info["height"]]
-    car_angle = observation[9] * info["car_angle_upper_bound"]
-
-    diff = next_checkpoint_pos - car_pos
-    next_checkpoint_angle = np.rad2deg(np.atan2(diff[1], diff[0]))
+    car_angle = info["angle"]
+    next_cp_diff = observation[:2] * info["distance_upper_bound"]
+    next_checkpoint_angle = np.rad2deg(np.atan2(next_cp_diff[1], next_cp_diff[0]))
     right_diff_angle = (next_checkpoint_angle - car_angle) % 360
     left_diff_angle = (car_angle - next_checkpoint_angle) % 360
 
@@ -22,7 +19,7 @@ def get_next_action(observation: ObsType, info: dict[str, Any]) -> ActType:
         info["max_rotation_per_turn"],
     )
 
-    thrust = 50 if np.linalg.norm(diff) < 3000 else 100
+    thrust = 50 if np.linalg.norm(next_cp_diff) < 3000 else 100
 
     return np.array([angle, thrust]) / [
         info["max_rotation_per_turn"],
@@ -57,7 +54,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--env",
-        default="gymnasium_search_race:gymnasium_search_race/SearchRace-v1",
+        default="gymnasium_search_race:gymnasium_search_race/SearchRace-v2",
         help="environment id",
     )
     parser.add_argument(
