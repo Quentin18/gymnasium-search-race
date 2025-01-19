@@ -17,7 +17,7 @@ def get_test_case_length(env: gym.Env, model: PPO, test_id: int) -> int:
         action, _ = model.predict(observation=observation, deterministic=True)
         observation, _reward, terminated, truncated, info = env.step(action)
 
-    return int(info["episode"]["l"][0])
+    return info["episode"]["l"]
 
 
 def write_metrics(
