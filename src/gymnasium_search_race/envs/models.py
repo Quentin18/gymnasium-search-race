@@ -99,7 +99,7 @@ class Car(Unit):
         return np.radians(self.angle)
 
     def get_radians(self, x: float, y: float) -> float:
-        return np.atan2(y - self.y, x - self.x)
+        return np.arctan2(y - self.y, x - self.x)
 
     def get_angle(self, x: float, y: float) -> float:
         return np.degrees(self.get_radians(x, y)) % 360
