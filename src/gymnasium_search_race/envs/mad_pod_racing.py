@@ -232,20 +232,17 @@ class MadPodRacingEnv(SearchRaceEnv):
             self.opponent_car.rotate(angle=angle)
             self.opponent_car.thrust_towards_heading(thrust=thrust)
 
-    def _get_default_reward(self) -> SupportsFloat:
-        return -0.1
-
     def _get_collision_reward(self) -> SupportsFloat:
-        return 0.0
+        return 0
 
     def _get_checkpoint_visit_reward(self, car_index: int) -> SupportsFloat:
-        return 1000 / self.total_checkpoints if car_index == 0 else 0.0
+        return 1 if car_index == 0 else 0
 
     def _move_car(self) -> SupportsFloat:
         if not self.opponent_car:
             return super()._move_car()
 
-        reward = self._get_default_reward()
+        reward = 0
         t = 0.0
 
         while t < 1.0:
@@ -355,14 +352,11 @@ class MadPodRacingBlockerEnv(MadPodRacingEnv):
     def _get_opponent_obs(self) -> ObsType:
         return self._get_runner_obs(car_index=1)
 
-    def _get_default_reward(self) -> SupportsFloat:
-        return 0.0
-
     def _get_collision_reward(self) -> SupportsFloat:
-        return 50.0
+        return 0.1
 
     def _get_checkpoint_visit_reward(self, car_index: int) -> SupportsFloat:
-        return -100.0 if car_index == 1 else 0.0
+        return -1 if car_index == 1 else 0
 
 
 class MadPodRacingDiscreteEnv(MadPodRacingEnv):
