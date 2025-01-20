@@ -117,53 +117,39 @@ class MadPodRacingEnv(SearchRaceEnv):
         self.car_radius = 400
         self.min_impulse = 120.0
 
-        self.observation_space = spaces.Box(
-            low=np.array([0, 0, 0, 0, 0, 0, 0, -1, -1, 0]),
-            high=np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1]),
-            dtype=np.float64,
-        )
-
         self.background_img_path = ASSETS_PATH / "background.jpg"
         self.car_img_path = ASSETS_PATH / "space_ship_runner.png"
         self.opponent_car_img_path = ASSETS_PATH / "space_ship_blocker.png"
 
         self.opponent_model = PPO.load(opponent_path) if opponent_path else None
 
-    def _get_car_obs(self, car: Car) -> ObsType:
-        return np.array(
-            [
-                car.x / self.width,
-                car.y / self.height,
-                car.vx / self.car_thrust_upper_bound,
-                car.vy / self.car_thrust_upper_bound,
-                car.angle / self.car_angle_upper_bound,
-            ],
-            dtype=np.float64,
-        )
-
     def _get_runner_obs(self, car_index: int) -> ObsType:
         car = self.cars[car_index]
-        car_obs = self._get_car_obs(car=car)
+        obs = []
 
-        next_checkpoint_index = (car.current_checkpoint + 1) % len(self.checkpoints)
-        next_next_checkpoint_index = (next_checkpoint_index + 1) % len(self.checkpoints)
-        checkpoints_obs = np.array(
-            [
-                float(car.current_checkpoint >= (self.total_checkpoints - 1)),
-                self.checkpoints[next_checkpoint_index][0] / self.width,
-                self.checkpoints[next_checkpoint_index][1] / self.height,
-                self.checkpoints[next_next_checkpoint_index][0] / self.width,
-                self.checkpoints[next_next_checkpoint_index][1] / self.height,
-            ],
-            dtype=np.float64,
-        )
+        # position and angle of the next 2 checkpoints relative to the car
+        for i in range(2):
+            x_cp, y_cp = self.checkpoints[
+                (car.current_checkpoint + i + 1) % len(self.checkpoints)
+            ]
+            obs.append(self._get_diff_obs(car=car, x=x_cp, y=y_cp))
 
-        return np.concatenate((checkpoints_obs, car_obs))
+        # car speed
+        obs.append(self._get_speed_obs(car=car))
+
+        return np.concatenate(obs)
 
     def _get_blocker_obs(self, car_index: int) -> ObsType:
-        runner_obs = self._get_runner_obs(car_index=(car_index + 1) % len(self.cars))
-        blocker_car = self._get_car_obs(car=self.cars[car_index])
-        return np.concatenate((runner_obs, blocker_car))
+        runner_car_index = (car_index + 1) % len(self.cars)
+        runner_car = self.cars[runner_car_index]
+        blocker_car = self.cars[car_index]
+        return np.concatenate(
+            [
+                self._get_diff_obs(car=blocker_car, x=runner_car.x, y=runner_car.y),
+                self._get_speed_obs(car=blocker_car),
+                self._get_runner_obs(car_index=runner_car_index),
+            ]
+        )
 
     def _get_obs(self) -> ObsType:
         return self._get_runner_obs(car_index=0)
@@ -357,8 +343,9 @@ class MadPodRacingBlockerEnv(MadPodRacingEnv):
 
         # opponent runner observation, blocker car
         self.observation_space = spaces.Box(
-            low=np.array([0, 0, 0, 0, 0, 0, 0, -1, -1, 0, 0, 0, -1, -1, 0]),
-            high=np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]),
+            low=-1,
+            high=1,
+            shape=(13,),
             dtype=np.float64,
         )
 
