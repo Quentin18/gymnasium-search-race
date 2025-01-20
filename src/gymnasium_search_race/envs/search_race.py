@@ -80,37 +80,40 @@ class SearchRaceEnv(gym.Env):
         self.car_img = None
         self.car_img_path = ASSETS_PATH / "car.png"
 
+    def _get_diff_obs(self, car: Car, x: float, y: float) -> ObsType:
+        return np.array(
+            [
+                (x - car.x) / self.distance_upper_bound,
+                (y - car.y) / self.distance_upper_bound,
+                ((car.get_radians(x, y) - car.radians() + np.pi) % (2 * np.pi) - np.pi)
+                / np.pi,
+            ],
+            dtype=np.float64,
+        )
+
+    def _get_speed_obs(self, car: Car) -> ObsType:
+        return np.array(
+            [
+                car.vx / self.car_thrust_upper_bound,
+                car.vy / self.car_thrust_upper_bound,
+            ],
+            dtype=np.float64,
+        )
+
     def _get_obs(self) -> ObsType:
         obs = []
-        car_radians = self.car.radians()
 
         # position and angle of the next 2 checkpoints relative to the car
         for i in range(2):
             x_cp, y_cp = self.checkpoints[
                 (self.car.current_checkpoint + i + 1) % len(self.checkpoints)
             ]
-            obs.extend(
-                [
-                    (x_cp - self.car.x) / self.distance_upper_bound,
-                    (y_cp - self.car.y) / self.distance_upper_bound,
-                    (
-                        (self.car.get_radians(x_cp, y_cp) - car_radians + np.pi)
-                        % (2 * np.pi)
-                        - np.pi
-                    )
-                    / np.pi,
-                ]
-            )
+            obs.append(self._get_diff_obs(car=self.car, x=x_cp, y=y_cp))
 
         # car speed
-        obs.extend(
-            [
-                self.car.vx / self.car_thrust_upper_bound,
-                self.car.vy / self.car_thrust_upper_bound,
-            ]
-        )
+        obs.append(self._get_speed_obs(car=self.car))
 
-        return np.array(obs, dtype=np.float64)
+        return np.concatenate(obs)
 
     def _get_terminated(self) -> bool:
         return self.car.current_checkpoint >= self.total_checkpoints
