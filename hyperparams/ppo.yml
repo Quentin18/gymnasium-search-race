@@ -23,11 +23,11 @@ gymnasium_search_race/SearchRace-v2: &search-race-defaults
 gymnasium_search_race/SearchRaceDiscrete-v2:
   <<: *search-race-defaults
 
-gymnasium_search_race/MadPodRacing-v0:
+gymnasium_search_race/MadPodRacing-v1:
   <<: *search-race-defaults
 
-gymnasium_search_race/MadPodRacingBlocker-v0:
+gymnasium_search_race/MadPodRacingBlocker-v1:
   <<: *search-race-defaults
 
-gymnasium_search_race/MadPodRacingDiscrete-v0:
+gymnasium_search_race/MadPodRacingDiscrete-v1:
   <<: *search-race-defaults

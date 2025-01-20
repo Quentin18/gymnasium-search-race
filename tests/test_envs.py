@@ -14,8 +14,8 @@ RESOURCES_PATH = Path(__file__).resolve().parent / "resources"
     (
         "gymnasium_search_race:gymnasium_search_race/SearchRace-v2",
         "gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v2",
-        "gymnasium_search_race:gymnasium_search_race/MadPodRacing-v0",
-        "gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v0",
+        "gymnasium_search_race:gymnasium_search_race/MadPodRacing-v1",
+        "gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v1",
     ),
 )
 def test_check_env(env_id: str):
