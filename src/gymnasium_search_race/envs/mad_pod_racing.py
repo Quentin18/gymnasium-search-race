@@ -5,7 +5,7 @@ from typing import Any, SupportsFloat
 import numpy as np
 import pygame
 from gymnasium import spaces
-from gymnasium.core import ObsType
+from gymnasium.core import ActType, ObsType
 from stable_baselines3 import PPO
 
 from gymnasium_search_race.envs.models import Car, Unit
@@ -401,6 +401,6 @@ class MadPodRacingDiscreteEnv(MadPodRacingEnv):
 
     def _convert_action_to_angle_thrust(
         self,
-        action: np.ndarray,
+        action: ActType,
     ) -> tuple[float, float]:
         return self.actions[action]

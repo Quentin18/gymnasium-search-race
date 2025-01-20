@@ -198,7 +198,7 @@ class SearchRaceEnv(gym.Env):
 
     def _convert_action_to_angle_thrust(
         self,
-        action: np.ndarray,
+        action: ActType,
     ) -> tuple[float, float]:
         angle, thrust = action
         assert -1.0 <= angle <= 1.0
@@ -420,6 +420,6 @@ class SearchRaceDiscreteEnv(SearchRaceEnv):
 
     def _convert_action_to_angle_thrust(
         self,
-        action: np.ndarray,
+        action: ActType,
     ) -> tuple[float, float]:
         return self.actions[action]
