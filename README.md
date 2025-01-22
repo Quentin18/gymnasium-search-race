@@ -22,11 +22,11 @@ https://github.com/user-attachments/assets/1862b04b-9e33-4f55-a309-ad665a1db2f1
         </tr>
         <tr>
             <td>Observation Space</td>
-            <td><code>Box([0, 0, 0, 0, 0, 0, 0, -1, -1, 0], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], float64)</code></td>
+            <td><code>Box(-1, 1, shape=(8,), float64)</code></td>
         </tr>
         <tr>
             <td>import</td>
-            <td><code>gymnasium.make("gymnasium_search_race:gymnasium_search_race/SearchRace-v1")</code></td>
+            <td><code>gymnasium.make("gymnasium_search_race:gymnasium_search_race/SearchRace-v2")</code></td>
         </tr>
     </tbody>
 </table>
@@ -58,22 +58,17 @@ The action is a `ndarray` with 2 continuous variables:
 
 ### Observation Space
 
-The observation is a `ndarray` of 10 continuous variables:
+The observation is a `ndarray` of 8 continuous variables:
 
-- 1 if the next checkpoint is the last one, 0 otherwise.
-- The x and y coordinates of the next checkpoint.
-- The x and y coordinates of the checkpoint after next checkpoint.
-- The x and y coordinates of the car.
+- The x and y coordinates and the angle of the next 2 checkpoints relative to the car.
 - The horizontal speed vx and vertical speed vy of the car.
-- The facing angle of the car.
 
-The values are normalized between 0 and 1, or -1 and 1 if negative values are allowed.
+The values are normalized between -1 and 1.
 
 ### Reward
 
-The goal is to visit all checkpoints as quickly as possible, as such the agent is penalised with a reward of `-0.1` for
-each timestep.
-When a checkpoint is visited, the agent is awarded with a reward of `1000/total_checkpoints`.
+- +1 when a checkpoint is visited.
+- 0 otherwise.
 
 ### Starting State
 
@@ -88,6 +83,7 @@ The episode ends if either of the following happens:
 
 ### Arguments
 
+- `laps`: number of laps. The default value is `3`.
 - `test_id`: test case id to generate the checkpoints (see
   choices [here](https://github.com/Quentin18/gymnasium-search-race/tree/main/src/gymnasium_search_race/envs/maps)). The
   default value is `None` which selects a test case randomly when the `reset` method is called.
@@ -95,11 +91,12 @@ The episode ends if either of the following happens:
 ```python
 import gymnasium as gym
 
-gym.make("gymnasium_search_race:gymnasium_search_race/SearchRace-v1", test_id=1)
+gym.make("gymnasium_search_race:gymnasium_search_race/SearchRace-v2", laps=3, test_id=1)
 ```
 
 ### Version History
 
+- v2: Update observation with relative positions and angles
 - v1: Add boolean to indicate if the next checkpoint is the last checkpoint in observation
 - v0: Initial version
 
@@ -110,7 +107,7 @@ The `SearchRaceDiscrete` environment is similar to the `SearchRace` environment 
 ```python
 import gymnasium as gym
 
-gym.make("gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v1", test_id=1)
+gym.make("gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v2", laps=3, test_id=1)
 ```
 
 ### Action Space
@@ -119,6 +116,7 @@ There are 74 discrete actions corresponding to the combinations of angles from -
 
 ### Version History
 
+- v2: Update observation with relative positions and angles
 - v1: Add all angles in action space
 - v0: Initial version
 
@@ -137,24 +135,30 @@ They are similar to the `SearchRace` and `SearchRaceDiscrete` environments excep
 ```python
 import gymnasium as gym
 
-gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacing-v0")
-gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v0")
+gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacing-v1")
+gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v1")
 ```
 
 https://github.com/user-attachments/assets/ce4b1837-4591-40dd-a203-9eec9146b94b
 
 ### Blocker
 
-The `MadPodRacingBlocker` environment can be used to train a blocker for
+The `MadPodRacingBlocker` and `MadPodRacingBlockerDiscrete` environments can be used to train a blocker for
 the [Mad Pod Racing CodinGame bot programming game](https://www.codingame.com/multiplayer/bot-programming/mad-pod-racing).
 
 ```python
 import gymnasium as gym
 
-gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacingBlocker-v0")
+gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacingBlocker-v1")
+gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacingBlockerDiscrete-v1")
 ```
 
 https://github.com/user-attachments/assets/57387372-823f-44a2-9a03-23a9332752ab
+
+### Version History
+
+- v1: Update observation with relative positions and angles
+- v0: Initial version
 
 ## Usage
 
@@ -173,11 +177,12 @@ To train a PPO agent for the Search Race game, execute:
 ```bash
 python -m rl_zoo3.train \
   --algo ppo \
-  --env gymnasium_search_race/SearchRace-v1 \
+  --env gymnasium_search_race/SearchRaceDiscrete-v2 \
   --tensorboard-log logs \
   --eval-freq 20000 \
   --eval-episodes 10 \
   --gym-packages gymnasium_search_race \
+  --env-kwargs "laps:1000" \
   --conf-file hyperparams/ppo.yml \
   --progress
 ```
@@ -187,12 +192,12 @@ For the Mad Pod Racing game, you can add an opponent with the `opponent_path` ar
 ```bash
 python -m rl_zoo3.train \
   --algo ppo \
-  --env gymnasium_search_race/MadPodRacingBlocker-v0 \
+  --env gymnasium_search_race/MadPodRacingBlockerDiscrete-v1 \
   --tensorboard-log logs \
   --eval-freq 20000 \
   --eval-episodes 10 \
   --gym-packages gymnasium_search_race \
-  --env-kwargs "opponent_path:'rl-trained-agents/ppo/gymnasium_search_race-MadPodRacing-v0_1/best_model.zip'" \
+  --env-kwargs "opponent_path:'rl-trained-agents/ppo/gymnasium_search_race-MadPodRacingDiscrete-v1_1/best_model.zip'" "laps:1000" \
   --conf-file hyperparams/ppo.yml \
   --progress
 ```
@@ -204,7 +209,7 @@ To see a trained agent in action on random test cases, execute:
 ```bash
 python -m rl_zoo3.enjoy \
   --algo ppo \
-  --env gymnasium_search_race/SearchRace-v1 \
+  --env gymnasium_search_race/SearchRaceDiscrete-v2 \
   --n-timesteps 1000 \
   --deterministic \
   --gym-packages gymnasium_search_race \
@@ -218,8 +223,8 @@ To run test cases with a trained agent, execute:
 
 ```bash
 python -m scripts.run_test_cases \
-  --path rl-trained-agents/ppo/gymnasium_search_race-SearchRace-v1_1/best_model.zip \
-  --env gymnasium_search_race:gymnasium_search_race/SearchRace-v1 \
+  --path rl-trained-agents/ppo/gymnasium_search_race-SearchRaceDiscrete-v2_1/best_model.zip \
+  --env gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v2 \
   --record-video \
   --record-metrics
 ```
@@ -230,17 +235,17 @@ To record a video of a trained agent on Mad Pod Racing, execute:
 
 ```bash
 python -m scripts.record_video \
-  --path rl-trained-agents/ppo/gymnasium_search_race-MadPodRacing-v0_1/best_model.zip \
-  --env gymnasium_search_race:gymnasium_search_race/MadPodRacing-v0
+  --path rl-trained-agents/ppo/gymnasium_search_race-MadPodRacingDiscrete-v1_1/best_model.zip \
+  --env gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v1
 ```
 
 For Mad Pod Racing Blocker, execute:
 
 ```bash
 python -m scripts.record_video \
-  --path rl-trained-agents/ppo/gymnasium_search_race-MadPodRacingBlocker-v0_1/best_model.zip \
-  --opponent-path rl-trained-agents/ppo/gymnasium_search_race-MadPodRacing-v0_1/best_model.zip \
-  --env gymnasium_search_race:gymnasium_search_race/MadPodRacingBlocker-v0
+  --path rl-trained-agents/ppo/gymnasium_search_race-MadPodRacingBlockerDiscrete-v1_1/best_model.zip \
+  --opponent-path rl-trained-agents/ppo/gymnasium_search_race-MadPodRacingDiscrete-v1_1/best_model.zip \
+  --env gymnasium_search_race:gymnasium_search_race/MadPodRacingBlockerDiscrete-v1
 ```
 
 ## Tests
