@@ -51,7 +51,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--env",
-        default="gymnasium_search_race:gymnasium_search_race/MadPodRacing-v0",
+        default="gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v1",
         help="environment id",
     )
     parser.add_argument(
