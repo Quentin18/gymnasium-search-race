@@ -31,3 +31,6 @@ gymnasium_search_race/MadPodRacingBlocker-v1:
 
 gymnasium_search_race/MadPodRacingDiscrete-v1:
   <<: *search-race-defaults
+
+gymnasium_search_race/MadPodRacingBlockerDiscrete-v1:
+  <<: *search-race-defaults

@@ -29,3 +29,9 @@ register(
     entry_point="gymnasium_search_race.envs:MadPodRacingDiscreteEnv",
     max_episode_steps=600,
 )
+
+register(
+    id="gymnasium_search_race/MadPodRacingBlockerDiscrete-v1",
+    entry_point="gymnasium_search_race.envs:MadPodRacingBlockerDiscreteEnv",
+    max_episode_steps=600,
+)

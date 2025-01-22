@@ -335,8 +335,13 @@ class MadPodRacingBlockerEnv(MadPodRacingEnv):
         self,
         opponent_path: str | Path,
         render_mode: str | None = None,
+        laps: int = 3,
     ) -> None:
-        super().__init__(render_mode=render_mode, opponent_path=opponent_path)
+        super().__init__(
+            render_mode=render_mode,
+            laps=laps,
+            opponent_path=opponent_path,
+        )
 
         # opponent runner observation, blocker car
         self.observation_space = spaces.Box(
@@ -364,8 +369,46 @@ class MadPodRacingDiscreteEnv(MadPodRacingEnv):
         self,
         render_mode: str | None = None,
         laps: int = 3,
+        opponent_path: str | Path | None = None,
     ) -> None:
-        super().__init__(render_mode=render_mode, laps=laps)
+        super().__init__(
+            render_mode=render_mode,
+            opponent_path=opponent_path,
+            laps=laps,
+        )
+
+        self.actions = list(
+            product(
+                list(
+                    range(
+                        -self.max_rotation_per_turn,
+                        self.max_rotation_per_turn + 1,
+                    )
+                ),
+                [0, self.car_max_thrust],
+            )
+        )
+        self.action_space = spaces.Discrete(len(self.actions))
+
+    def _convert_action_to_angle_thrust(
+        self,
+        action: ActType,
+    ) -> tuple[float, float]:
+        return self.actions[action]
+
+
+class MadPodRacingBlockerDiscreteEnv(MadPodRacingBlockerEnv):
+    def __init__(
+        self,
+        opponent_path: str | Path,
+        render_mode: str | None = None,
+        laps: int = 3,
+    ) -> None:
+        super().__init__(
+            opponent_path=opponent_path,
+            render_mode=render_mode,
+            laps=laps,
+        )
 
         self.actions = list(
             product(
