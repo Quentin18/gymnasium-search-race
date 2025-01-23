@@ -84,6 +84,7 @@ The episode ends if either of the following happens:
 ### Arguments
 
 - `laps`: number of laps. The default value is `3`.
+- `car_max_thrust`: maximum thrust. The default value is `200`.
 - `test_id`: test case id to generate the checkpoints (see
   choices [here](https://github.com/Quentin18/gymnasium-search-race/tree/main/src/gymnasium_search_race/envs/maps)). The
   default value is `None` which selects a test case randomly when the `reset` method is called.
@@ -91,7 +92,12 @@ The episode ends if either of the following happens:
 ```python
 import gymnasium as gym
 
-gym.make("gymnasium_search_race:gymnasium_search_race/SearchRace-v2", laps=3, test_id=1)
+gym.make(
+    "gymnasium_search_race:gymnasium_search_race/SearchRace-v2",
+    laps=3,
+    car_max_thrust=200,
+    test_id=1,
+)
 ```
 
 ### Version History
@@ -107,7 +113,12 @@ The `SearchRaceDiscrete` environment is similar to the `SearchRace` environment 
 ```python
 import gymnasium as gym
 
-gym.make("gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v2", laps=3, test_id=1)
+gym.make(
+    "gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v2",
+    laps=3,
+    car_max_thrust=200,
+    test_id=1,
+)
 ```
 
 ### Action Space
@@ -128,7 +139,6 @@ The `MadPodRacing` and `MadPodRacingDiscrete` environments can be used to train 
 the [Mad Pod Racing CodinGame bot programming game](https://www.codingame.com/multiplayer/bot-programming/mad-pod-racing).
 They are similar to the `SearchRace` and `SearchRaceDiscrete` environments except the following differences:
 
-- The maximum thrust value is 100 instead of 200.
 - The maps are generated the same way Codingame generates them.
 - The car position is rounded and not truncated.
 
@@ -157,7 +167,7 @@ https://github.com/user-attachments/assets/57387372-823f-44a2-9a03-23a9332752ab
 
 ### Version History
 
-- v1: Update observation with relative positions and angles
+- v1: Update observation with relative positions and angles and update maximum thrust
 - v0: Initial version
 
 ## Usage
