@@ -4,13 +4,13 @@ import json
 from gymnasium_search_race.envs.search_race import MAPS_PATH, get_test_ids
 
 
-def merge_maps() -> dict[int, list[list[int]]]:
+def merge_maps() -> dict[str, list[list[int]]]:
     test_maps = {}
 
     for test_id in get_test_ids():
         path = MAPS_PATH / f"test{test_id}.json"
         test_map = json.loads(path.read_text(encoding="UTF-8"))
-        test_maps[test_id] = [
+        test_maps[str(test_id)] = [
             [int(i) for i in checkpoint.split()]
             for checkpoint in test_map["testIn"].split(";")
         ]
@@ -20,7 +20,7 @@ def merge_maps() -> dict[int, list[list[int]]]:
 
 def write_merged_maps(
     path: str,
-    maps: dict[int, list[list[int]]],
+    maps: dict[str, list[list[int]]],
 ) -> None:
     with open(path, "w", encoding="utf-8") as json_file:
         json.dump(maps, json_file)
