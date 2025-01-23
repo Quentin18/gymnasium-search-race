@@ -1,6 +1,7 @@
 import argparse
 import gzip
 import json
+import os
 
 import gymnasium as gym
 from stable_baselines3 import PPO
@@ -44,7 +45,7 @@ def search_best_actions(
     model_path: str,
     env_id: str,
     total_timesteps: int = 200_000,
-) -> dict[int, list[list[int]]]:
+) -> dict[str, list[list[int]]]:
     total_length = 0
     actions_per_test_id = {}
 
@@ -59,16 +60,44 @@ def search_best_actions(
         length = len(actions)
         progress_bar.set_postfix({f"test_{test_id}": length})
         total_length += length
-        actions_per_test_id[test_id] = actions
+        actions_per_test_id[str(test_id)] = actions
 
     print("Total:", total_length)
 
     return actions_per_test_id
 
 
+def read_best_actions(path: str) -> dict[str, list[list[int]]]:
+    with gzip.open(path, "rt", encoding="utf-8") as json_file:
+        actions = json.load(json_file)
+    return actions
+
+
+def merge_best_actions(
+    actions_1: dict[str, list[list[int]]],
+    actions_2: dict[str, list[list[int]]],
+) -> dict[str, list[list[int]]]:
+    merged_actions = {}
+    total_length = 0
+
+    print("Merging best actions")
+
+    for test_id in actions_1:
+        if len(actions_1[test_id]) < len(actions_2[test_id]):
+            merged_actions[test_id] = actions_1[test_id]
+        else:
+            merged_actions[test_id] = actions_2[test_id]
+
+        total_length += len(merged_actions[test_id])
+
+    print("Total after merge:", total_length)
+
+    return merged_actions
+
+
 def write_best_actions(
     path: str,
-    actions: dict[int, list[list[int]]],
+    actions: dict[str, list[list[int]]],
 ) -> None:
     with gzip.open(path, "wt", encoding="utf-8") as json_file:
         json.dump(actions, json_file)
@@ -107,6 +136,13 @@ if __name__ == "__main__":
     )
 
     if args.output_path:
+        if os.path.exists(args.output_path):
+            current_actions = read_best_actions(path=args.output_path)
+            best_actions = merge_best_actions(
+                actions_1=current_actions,
+                actions_2=best_actions,
+            )
+
         write_best_actions(
             path=args.output_path,
             actions=best_actions,
