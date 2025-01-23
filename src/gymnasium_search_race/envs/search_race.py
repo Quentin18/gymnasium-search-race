@@ -39,18 +39,19 @@ class SearchRaceEnv(gym.Env):
         self,
         render_mode: str | None = None,
         laps: int = 3,
+        car_max_thrust: float = 200,
         test_id: int | None = None,
     ) -> None:
         self.laps = laps
+        self.car_max_thrust = car_max_thrust
         self.width = 16000
         self.height = 9000
         self.checkpoint_radius = 600
         self.max_rotation_per_turn = 18
-        self.car_max_thrust = 200
         self.car_friction = 0.15
 
         self.distance_upper_bound = np.linalg.norm([self.width, self.height])
-        self.car_thrust_upper_bound = 2000
+        self.car_thrust_upper_bound = car_max_thrust * 10
         self.car_angle_upper_bound = 360
 
         self.observation_space = spaces.Box(
@@ -404,9 +405,15 @@ class SearchRaceDiscreteEnv(SearchRaceEnv):
         self,
         render_mode: str | None = None,
         laps: int = 3,
+        car_max_thrust: float = 200,
         test_id: int | None = None,
     ) -> None:
-        super().__init__(render_mode=render_mode, laps=laps, test_id=test_id)
+        super().__init__(
+            render_mode=render_mode,
+            laps=laps,
+            car_max_thrust=car_max_thrust,
+            test_id=test_id,
+        )
 
         self.actions = list(
             product(

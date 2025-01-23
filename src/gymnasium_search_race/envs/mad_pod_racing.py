@@ -109,11 +109,14 @@ class MadPodRacingEnv(SearchRaceEnv):
         self,
         render_mode: str | None = None,
         laps: int = 3,
+        car_max_thrust: int = 200,
         opponent_path: str | Path | None = None,
     ) -> None:
-        super().__init__(render_mode=render_mode, laps=laps)
-        self.car_max_thrust = 100
-        self.car_thrust_upper_bound = 1000
+        super().__init__(
+            render_mode=render_mode,
+            laps=laps,
+            car_max_thrust=car_max_thrust,
+        )
         self.car_radius = 400
         self.min_impulse = 120.0
 
@@ -336,10 +339,12 @@ class MadPodRacingBlockerEnv(MadPodRacingEnv):
         opponent_path: str | Path,
         render_mode: str | None = None,
         laps: int = 3,
+        car_max_thrust: int = 200,
     ) -> None:
         super().__init__(
             render_mode=render_mode,
             laps=laps,
+            car_max_thrust=car_max_thrust,
             opponent_path=opponent_path,
         )
 
@@ -369,12 +374,14 @@ class MadPodRacingDiscreteEnv(MadPodRacingEnv):
         self,
         render_mode: str | None = None,
         laps: int = 3,
+        car_max_thrust: int = 200,
         opponent_path: str | Path | None = None,
     ) -> None:
         super().__init__(
             render_mode=render_mode,
-            opponent_path=opponent_path,
             laps=laps,
+            car_max_thrust=car_max_thrust,
+            opponent_path=opponent_path,
         )
 
         self.actions = list(
@@ -403,11 +410,13 @@ class MadPodRacingBlockerDiscreteEnv(MadPodRacingBlockerEnv):
         opponent_path: str | Path,
         render_mode: str | None = None,
         laps: int = 3,
+        car_max_thrust: int = 200,
     ) -> None:
         super().__init__(
             opponent_path=opponent_path,
             render_mode=render_mode,
             laps=laps,
+            car_max_thrust=car_max_thrust,
         )
 
         self.actions = list(
