@@ -52,7 +52,6 @@ class SearchRaceEnv(gym.Env):
 
         self.distance_upper_bound = np.linalg.norm([self.width, self.height])
         self.car_thrust_upper_bound = car_max_thrust * 10
-        self.car_angle_upper_bound = 360
 
         self.observation_space = spaces.Box(
             low=-1,
@@ -132,7 +131,6 @@ class SearchRaceEnv(gym.Env):
             "car_max_thrust": self.car_max_thrust,
             "distance_upper_bound": self.distance_upper_bound,
             "car_thrust_upper_bound": self.car_thrust_upper_bound,
-            "car_angle_upper_bound": self.car_angle_upper_bound,
             "checkpoints": self.checkpoints,
             "total_checkpoints": self.total_checkpoints,
             "current_checkpoint": self.car.current_checkpoint,
