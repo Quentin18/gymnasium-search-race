@@ -28,11 +28,10 @@ def search_best_actions_on_test_id(
 
     actions = []
     for action in env.best_episode_actions:
-        if "Discrete" in env_id:
-            action = env.get_wrapper_attr("actions")[action]
-
         actions.append(
-            [
+            env.get_wrapper_attr("actions")[action]
+            if "Discrete" in env_id
+            else [
                 round(action[0] * env.get_wrapper_attr("max_rotation_per_turn")),
                 round(action[1] * env.get_wrapper_attr("car_max_thrust")),
             ]
