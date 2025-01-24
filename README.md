@@ -12,7 +12,7 @@ Gymnasium environments for
 the [Search Race CodinGame optimization puzzle](https://www.codingame.com/multiplayer/optimization/search-race)
 and [Mad Pod Racing CodinGame bot programming game](https://www.codingame.com/multiplayer/bot-programming/mad-pod-racing).
 
-https://github.com/user-attachments/assets/1862b04b-9e33-4f55-a309-ad665a1db2f1
+https://github.com/user-attachments/assets/766b4c79-1be7-48bd-a25b-2ff99de972f7
 
 <table>
     <tbody>
@@ -149,7 +149,7 @@ gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacing-v1")
 gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v1")
 ```
 
-https://github.com/user-attachments/assets/ce4b1837-4591-40dd-a203-9eec9146b94b
+https://github.com/user-attachments/assets/2e2a748d-5bd8-459a-8ac2-a8420bae33b9
 
 ### Blocker
 
@@ -163,7 +163,7 @@ gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacingBlocker-v1")
 gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacingBlockerDiscrete-v1")
 ```
 
-https://github.com/user-attachments/assets/57387372-823f-44a2-9a03-23a9332752ab
+https://github.com/user-attachments/assets/3c71a487-9ec1-49cd-9b8b-70f7984a809a
 
 ### Version History
 
