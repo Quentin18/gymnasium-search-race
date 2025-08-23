@@ -23,13 +23,13 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 dependencies = [
-    "gymnasium==1.0.0",
+    "gymnasium==1.2.0",
     "pygame==2.6.1",
-    "stable-baselines3==2.4.1",
+    "stable-baselines3==2.7.0",
 ]
 
 [project.optional-dependencies]
-training = ["moviepy==2.1.2", "rl_zoo3==2.4.0", "tensorboard==2.18.0"]
+training = ["moviepy==2.2.1", "rl_zoo3==2.7.0", "tensorboard==2.20.0"]
 testing = ["pytest"]
 quality = ["black[d]", "isort", "pylint"]
 
@@ -61,4 +61,3 @@ disable = [
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-ra"
-filterwarnings = ["ignore::DeprecationWarning:pygame.*:"]
