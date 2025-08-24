@@ -88,6 +88,7 @@ The episode ends if either of the following happens:
 - `test_id`: test case id to generate the checkpoints (see
   choices [here](https://github.com/Quentin18/gymnasium-search-race/tree/main/src/gymnasium_search_race/envs/maps)). The
   default value is `None` which selects a test case randomly when the `reset` method is called.
+- `sequential_maps`: if `True`, the maps are generated sequentially. The default value is `False`.
 
 ```python
 import gymnasium as gym
@@ -97,6 +98,7 @@ gym.make(
     laps=3,
     car_max_thrust=200,
     test_id=1,
+    sequential_maps=False,
 )
 ```
 
@@ -118,6 +120,7 @@ gym.make(
     laps=3,
     car_max_thrust=200,
     test_id=1,
+    sequential_maps=False,
 )
 ```
 
@@ -190,12 +193,16 @@ python -m rl_zoo3.train \
   --env gymnasium_search_race/SearchRaceDiscrete-v2 \
   --tensorboard-log logs \
   --eval-freq 20000 \
-  --eval-episodes 10 \
+  --eval-episodes 50 \
   --gym-packages gymnasium_search_race \
-  --env-kwargs "laps:1000" \
+  --env-kwargs "laps:1000" "sequential_maps:True" \
   --conf-file hyperparams/ppo.yml \
   --progress
 ```
+
+> [!IMPORTANT]
+> The agent is evaluated once per test case with `--eval-episodes 50` and `--env-kwargs "sequential_maps:True"` (there
+> are 50 different test cases).
 
 For the Mad Pod Racing game, you can add an opponent with the `opponent_path` argument:
 
@@ -205,12 +212,16 @@ python -m rl_zoo3.train \
   --env gymnasium_search_race/MadPodRacingBlockerDiscrete-v1 \
   --tensorboard-log logs \
   --eval-freq 20000 \
-  --eval-episodes 10 \
+  --eval-episodes 52 \
   --gym-packages gymnasium_search_race \
-  --env-kwargs "opponent_path:'rl-trained-agents/ppo/gymnasium_search_race-MadPodRacingDiscrete-v1_1/best_model.zip'" "laps:1000" \
+  --env-kwargs "opponent_path:'rl-trained-agents/ppo/gymnasium_search_race-MadPodRacingDiscrete-v1_1/best_model.zip'" "laps:1000" "sequential_maps:True" \
   --conf-file hyperparams/ppo.yml \
   --progress
 ```
+
+> [!IMPORTANT]
+> The agent is evaluated four times per test case with `--eval-episodes 52` and
+`--env-kwargs "sequential_maps:True"` (there are 13 different test cases).
 
 ### Enjoy a Trained Agent
 
