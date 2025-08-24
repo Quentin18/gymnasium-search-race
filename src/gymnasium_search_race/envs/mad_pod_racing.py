@@ -110,12 +110,16 @@ class MadPodRacingEnv(SearchRaceEnv):
         render_mode: str | None = None,
         laps: int = 3,
         car_max_thrust: int = 200,
+        test_id: int | None = None,
+        sequential_maps: bool = False,
         opponent_path: str | Path | None = None,
     ) -> None:
         super().__init__(
             render_mode=render_mode,
             laps=laps,
             car_max_thrust=car_max_thrust,
+            test_id=test_id,
+            sequential_maps=sequential_maps,
         )
         self.car_radius = 400
         self.min_impulse = 120.0
@@ -125,6 +129,12 @@ class MadPodRacingEnv(SearchRaceEnv):
         self.opponent_car_img_path = ASSETS_PATH / "space_ship_blocker.png"
 
         self.opponent_model = PPO.load(opponent_path) if opponent_path else None
+
+    def _get_test_ids(self) -> list[int]:
+        return list(range(len(MAPS)))
+
+    def _get_test_checkpoints(self) -> list[np.ndarray]:
+        return [np.array(checkpoints, dtype=np.float64) for checkpoints in MAPS]
 
     def _get_runner_obs(self, car_index: int) -> ObsType:
         car = self.cars[car_index]
@@ -170,10 +180,7 @@ class MadPodRacingEnv(SearchRaceEnv):
         options: dict[str, Any] | None = None,
     ) -> np.ndarray:
         # https://github.com/Agade09/CSB-Runner-Arena/blob/master/Arena.cpp#L276
-        checkpoints = np.array(
-            MAPS[self.np_random.integers(0, len(MAPS))],
-            dtype=np.float64,
-        )
+        checkpoints = super()._generate_checkpoints(options=options)
         shift = self.np_random.integers(0, len(checkpoints))
         checkpoints = np.roll(checkpoints, shift=shift, axis=0)
         delta = self.np_random.integers(-30, 31, checkpoints.shape)
@@ -340,12 +347,16 @@ class MadPodRacingBlockerEnv(MadPodRacingEnv):
         render_mode: str | None = None,
         laps: int = 3,
         car_max_thrust: int = 200,
+        test_id: int | None = None,
+        sequential_maps: bool = False,
     ) -> None:
         super().__init__(
             render_mode=render_mode,
             laps=laps,
             car_max_thrust=car_max_thrust,
             opponent_path=opponent_path,
+            test_id=test_id,
+            sequential_maps=sequential_maps,
         )
 
         # opponent runner observation, blocker car
@@ -375,12 +386,16 @@ class MadPodRacingDiscreteEnv(MadPodRacingEnv):
         render_mode: str | None = None,
         laps: int = 3,
         car_max_thrust: int = 200,
+        test_id: int | None = None,
+        sequential_maps: bool = False,
         opponent_path: str | Path | None = None,
     ) -> None:
         super().__init__(
             render_mode=render_mode,
             laps=laps,
             car_max_thrust=car_max_thrust,
+            test_id=test_id,
+            sequential_maps=sequential_maps,
             opponent_path=opponent_path,
         )
 
@@ -411,12 +426,16 @@ class MadPodRacingBlockerDiscreteEnv(MadPodRacingBlockerEnv):
         render_mode: str | None = None,
         laps: int = 3,
         car_max_thrust: int = 200,
+        test_id: int | None = None,
+        sequential_maps: bool = False,
     ) -> None:
         super().__init__(
             opponent_path=opponent_path,
             render_mode=render_mode,
             laps=laps,
             car_max_thrust=car_max_thrust,
+            test_id=test_id,
+            sequential_maps=sequential_maps,
         )
 
         self.actions = list(

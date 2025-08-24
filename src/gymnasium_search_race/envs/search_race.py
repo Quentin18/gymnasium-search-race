@@ -41,6 +41,7 @@ class SearchRaceEnv(gym.Env):
         laps: int = 3,
         car_max_thrust: float = 200,
         test_id: int | None = None,
+        sequential_maps: bool = False,
     ) -> None:
         self.laps = laps
         self.car_max_thrust = car_max_thrust
@@ -70,7 +71,11 @@ class SearchRaceEnv(gym.Env):
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
 
+        self.test_ids = self._get_test_ids()
+        self.test_checkpoints = self._get_test_checkpoints()
         self.test_id = test_id
+        self.sequential_maps = sequential_maps
+        self.test_index = -1
 
         self.window = None
         self.clock = None
@@ -79,6 +84,27 @@ class SearchRaceEnv(gym.Env):
         self.background_img_path = ASSETS_PATH / "back.jpg"
         self.car_img = None
         self.car_img_path = ASSETS_PATH / "car.png"
+
+    def _get_test_ids(self) -> list[int]:
+        return get_test_ids()
+
+    def _get_test_checkpoints(self) -> list[np.ndarray]:
+        checkpoints = []
+
+        for test_id in self._get_test_ids():
+            test_map_path = MAPS_PATH / f"test{test_id}.json"
+            test_map = json.loads(test_map_path.read_text(encoding="UTF-8"))
+            checkpoints.append(
+                np.array(
+                    [
+                        [int(i) for i in checkpoint.split()]
+                        for checkpoint in test_map["testIn"].split(";")
+                    ],
+                    dtype=np.float64,
+                )
+            )
+
+        return checkpoints
 
     def _get_diff_obs(self, car: Car, x: float, y: float) -> ObsType:
         return np.array(
@@ -146,21 +172,14 @@ class SearchRaceEnv(gym.Env):
             else options["test_id"]
         )
 
-        if test_id is None:
-            maps_paths = sorted(MAPS_PATH.glob("*.json"))
-            test_map_path = self.np_random.choice(maps_paths)
+        if test_id is not None:
+            self.test_index = self.test_ids.index(test_id)
+        elif self.sequential_maps:
+            self.test_index = (self.test_index + 1) % len(self.test_ids)
         else:
-            test_map_path = MAPS_PATH / f"test{test_id}.json"
+            self.test_index = self.np_random.choice(len(self.test_ids))
 
-        test_map = json.loads(test_map_path.read_text(encoding="UTF-8"))
-
-        return np.array(
-            [
-                [int(i) for i in checkpoint.split()]
-                for checkpoint in test_map["testIn"].split(";")
-            ],
-            dtype=np.float64,
-        )
+        return self.test_checkpoints[self.test_index]
 
     def _generate_car(self) -> None:
         self.car = Car(
@@ -405,12 +424,14 @@ class SearchRaceDiscreteEnv(SearchRaceEnv):
         laps: int = 3,
         car_max_thrust: float = 200,
         test_id: int | None = None,
+        sequential_maps: bool = False,
     ) -> None:
         super().__init__(
             render_mode=render_mode,
             laps=laps,
             car_max_thrust=car_max_thrust,
             test_id=test_id,
+            sequential_maps=sequential_maps,
         )
 
         self.actions = list(

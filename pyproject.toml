@@ -55,7 +55,9 @@ disable = [
     "missing-function-docstring",
     "missing-module-docstring",
     "no-member",
+    "too-many-arguments",
     "too-many-instance-attributes",
+    "too-many-positional-arguments",
 ]
 
 [tool.pytest.ini_options]

@@ -24,6 +24,73 @@ def test_check_env(env_id: str):
 
 
 @pytest.mark.parametrize(
+    "env_id,test_id,test_index",
+    (
+        ("gymnasium_search_race:gymnasium_search_race/SearchRace-v2", 700, 46),
+        ("gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v2", 700, 46),
+        ("gymnasium_search_race:gymnasium_search_race/MadPodRacing-v1", 8, 8),
+        ("gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v1", 8, 8),
+    ),
+)
+def test_env_reset_when_test_id_is_not_none(
+    env_id: str,
+    test_id: int,
+    test_index: int,
+):
+    env = gym.make(env_id, test_id=test_id)
+
+    for _ in range(100):
+        _observation, _info = env.reset()
+        assert getattr(env.unwrapped, "test_index") == test_index
+
+
+@pytest.mark.parametrize(
+    "env_id,test_size",
+    (
+        ("gymnasium_search_race:gymnasium_search_race/SearchRace-v2", 100),
+        ("gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v2", 100),
+        ("gymnasium_search_race:gymnasium_search_race/MadPodRacing-v1", 26),
+        ("gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v1", 26),
+    ),
+)
+def test_env_reset_when_sequential_maps_is_false(env_id: str, test_size: int):
+    env = gym.make(env_id, sequential_maps=False)
+
+    test_indexes = []
+
+    for _ in range(test_size):
+        _observation, _info = env.reset()
+        test_indexes.append(getattr(env.unwrapped, "test_index"))
+
+    assert test_indexes != sorted(test_indexes)
+
+
+@pytest.mark.parametrize(
+    "env_id,test_size",
+    (
+        ("gymnasium_search_race:gymnasium_search_race/SearchRace-v2", 100),
+        ("gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v2", 100),
+        ("gymnasium_search_race:gymnasium_search_race/MadPodRacing-v1", 26),
+        ("gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v1", 26),
+    ),
+)
+def test_env_reset_when_sequential_maps_is_true(env_id: str, test_size: int):
+    env = gym.make(env_id, sequential_maps=True)
+
+    test_indexes = []
+
+    for _ in range(test_size):
+        _observation, _info = env.reset()
+        test_indexes.append(getattr(env.unwrapped, "test_index"))
+
+    assert (
+        test_indexes[: test_size // 2]
+        == test_indexes[test_size // 2 :]
+        == list(range(test_size // 2))
+    )
+
+
+@pytest.mark.parametrize(
     "test_id",
     (1, 2, 700),
 )
