@@ -134,7 +134,10 @@ class MadPodRacingEnv(SearchRaceEnv):
         return list(range(len(MAPS)))
 
     def _get_test_checkpoints(self) -> list[np.ndarray]:
-        return [np.array(checkpoints, dtype=np.float64) for checkpoints in MAPS]
+        return [
+            np.array(checkpoints, dtype=self.observation_space.dtype)
+            for checkpoints in MAPS
+        ]
 
     def _get_runner_obs(self, car_index: int) -> ObsType:
         car = self.cars[car_index]
@@ -150,7 +153,7 @@ class MadPodRacingEnv(SearchRaceEnv):
         # car speed
         obs.append(self._get_speed_obs(car=car))
 
-        return np.concatenate(obs)
+        return np.concatenate(obs).astype(self.observation_space.dtype)
 
     def _get_blocker_obs(self, car_index: int) -> ObsType:
         runner_car_index = (car_index + 1) % len(self.cars)
@@ -363,7 +366,7 @@ class MadPodRacingBlockerEnv(MadPodRacingEnv):
         self.observation_space = spaces.Box(
             low=-1,
             high=1,
-            shape=(13,),
+            shape=(16,),
             dtype=np.float64,
         )
 

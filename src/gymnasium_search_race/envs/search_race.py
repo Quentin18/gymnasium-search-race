@@ -28,6 +28,12 @@ def get_test_ids() -> list[int]:
     return sorted(int(path.stem.replace("test", "")) for path in MAPS_PATH.iterdir())
 
 
+def clockwise_rotation_matrix(angle: float) -> np.ndarray:
+    # https://en.wikipedia.org/wiki/Rotation_matrix#Direction
+    c, s = np.cos(angle), np.sin(angle)
+    return np.array([[c, s], [-s, c]])
+
+
 class SearchRaceEnv(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 10}
 
@@ -53,7 +59,7 @@ class SearchRaceEnv(gym.Env):
         self.observation_space = spaces.Box(
             low=-1,
             high=1,
-            shape=(8,),
+            shape=(10,),
             dtype=np.float64,
         )
 
@@ -96,31 +102,31 @@ class SearchRaceEnv(gym.Env):
                         [int(i) for i in checkpoint.split()]
                         for checkpoint in test_map["testIn"].split(";")
                     ],
-                    dtype=np.float64,
+                    dtype=self.observation_space.dtype,
                 )
             )
 
         return checkpoints
 
     def _get_diff_obs(self, car: Car, x: float, y: float) -> ObsType:
-        return np.array(
+        r = clockwise_rotation_matrix(car.radians())
+        dx, dy = r @ [x - car.x, y - car.y]
+        relative_angle = (np.arctan2(dy, dx) + np.pi) % (2 * np.pi) - np.pi
+        return np.clip(
             [
-                (x - car.x) / self.distance_upper_bound,
-                (y - car.y) / self.distance_upper_bound,
-                ((car.get_radians(x, y) - car.radians() + np.pi) % (2 * np.pi) - np.pi)
-                / np.pi,
+                dx / self.distance_upper_bound,
+                dy / self.distance_upper_bound,
+                np.sin(relative_angle),
+                np.cos(relative_angle),
             ],
-            dtype=np.float64,
+            -1.0,
+            1.0,
         )
 
     def _get_speed_obs(self, car: Car) -> ObsType:
-        return np.array(
-            [
-                car.vx / self.car_thrust_upper_bound,
-                car.vy / self.car_thrust_upper_bound,
-            ],
-            dtype=np.float64,
-        )
+        r = clockwise_rotation_matrix(car.radians())
+        relative_speed = r @ [car.vx, car.vy]
+        return np.clip(relative_speed / self.car_thrust_upper_bound, -1.0, 1.0)
 
     def _get_obs(self) -> ObsType:
         obs = []
@@ -135,7 +141,7 @@ class SearchRaceEnv(gym.Env):
         # car speed
         obs.append(self._get_speed_obs(car=self.car))
 
-        return np.concatenate(obs)
+        return np.concatenate(obs).astype(self.observation_space.dtype)
 
     def _get_terminated(self) -> bool:
         return self.car.current_checkpoint >= self.total_checkpoints
