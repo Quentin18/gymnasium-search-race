@@ -58,10 +58,11 @@ The action is a `ndarray` with 2 continuous variables:
 
 ### Observation Space
 
-The observation is a `ndarray` of 8 continuous variables:
+The observation is a `ndarray` of 10 continuous variables:
 
-- The x and y coordinates and the angle of the next 2 checkpoints relative to the car.
-- The horizontal speed vx and vertical speed vy of the car.
+- The relative x and y coordinates of the next two checkpoints in the car's frame.
+- The sine and cosine of the relative angle to the next two checkpoints in the car's frame.
+- The longitudinal and lateral speed in the car's frame.
 
 The values are normalized between -1 and 1.
 
