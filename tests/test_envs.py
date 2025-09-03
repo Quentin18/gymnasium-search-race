@@ -12,10 +12,10 @@ RESOURCES_PATH = Path(__file__).resolve().parent / "resources"
 @pytest.mark.parametrize(
     "env_id",
     (
-        "gymnasium_search_race:gymnasium_search_race/SearchRace-v2",
-        "gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v2",
-        "gymnasium_search_race:gymnasium_search_race/MadPodRacing-v1",
-        "gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v1",
+        "gymnasium_search_race:gymnasium_search_race/SearchRace-v3",
+        "gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v3",
+        "gymnasium_search_race:gymnasium_search_race/MadPodRacing-v2",
+        "gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v2",
     ),
 )
 def test_check_env(env_id: str):
@@ -26,10 +26,10 @@ def test_check_env(env_id: str):
 @pytest.mark.parametrize(
     "env_id,test_id,test_index",
     (
-        ("gymnasium_search_race:gymnasium_search_race/SearchRace-v2", 700, 46),
-        ("gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v2", 700, 46),
-        ("gymnasium_search_race:gymnasium_search_race/MadPodRacing-v1", 8, 8),
-        ("gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v1", 8, 8),
+        ("gymnasium_search_race:gymnasium_search_race/SearchRace-v3", 700, 46),
+        ("gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v3", 700, 46),
+        ("gymnasium_search_race:gymnasium_search_race/MadPodRacing-v2", 8, 8),
+        ("gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v2", 8, 8),
     ),
 )
 def test_env_reset_when_test_id_is_not_none(
@@ -47,10 +47,10 @@ def test_env_reset_when_test_id_is_not_none(
 @pytest.mark.parametrize(
     "env_id,test_size",
     (
-        ("gymnasium_search_race:gymnasium_search_race/SearchRace-v2", 100),
-        ("gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v2", 100),
-        ("gymnasium_search_race:gymnasium_search_race/MadPodRacing-v1", 26),
-        ("gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v1", 26),
+        ("gymnasium_search_race:gymnasium_search_race/SearchRace-v3", 100),
+        ("gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v3", 100),
+        ("gymnasium_search_race:gymnasium_search_race/MadPodRacing-v2", 26),
+        ("gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v2", 26),
     ),
 )
 def test_env_reset_when_sequential_maps_is_false(env_id: str, test_size: int):
@@ -68,10 +68,10 @@ def test_env_reset_when_sequential_maps_is_false(env_id: str, test_size: int):
 @pytest.mark.parametrize(
     "env_id,test_size",
     (
-        ("gymnasium_search_race:gymnasium_search_race/SearchRace-v2", 100),
-        ("gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v2", 100),
-        ("gymnasium_search_race:gymnasium_search_race/MadPodRacing-v1", 26),
-        ("gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v1", 26),
+        ("gymnasium_search_race:gymnasium_search_race/SearchRace-v3", 100),
+        ("gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v3", 100),
+        ("gymnasium_search_race:gymnasium_search_race/MadPodRacing-v2", 26),
+        ("gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v2", 26),
     ),
 )
 def test_env_reset_when_sequential_maps_is_true(env_id: str, test_size: int):
@@ -96,7 +96,7 @@ def test_env_reset_when_sequential_maps_is_true(env_id: str, test_size: int):
 )
 def test_search_race_step(test_id: int):
     env = gym.make(
-        "gymnasium_search_race:gymnasium_search_race/SearchRace-v2",
+        "gymnasium_search_race:gymnasium_search_race/SearchRace-v3",
         test_id=test_id,
     )
 

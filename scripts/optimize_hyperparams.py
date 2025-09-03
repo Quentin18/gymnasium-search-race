@@ -94,7 +94,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--env",
-        default="gymnasium_search_race/SearchRaceDiscrete-v2",
+        default="gymnasium_search_race/SearchRaceDiscrete-v3",
         help="environment id",
     )
     args = parser.parse_args()

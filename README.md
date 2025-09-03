@@ -26,7 +26,7 @@ https://github.com/user-attachments/assets/766b4c79-1be7-48bd-a25b-2ff99de972f7
         </tr>
         <tr>
             <td>import</td>
-            <td><code>gymnasium.make("gymnasium_search_race:gymnasium_search_race/SearchRace-v2")</code></td>
+            <td><code>gymnasium.make("gymnasium_search_race:gymnasium_search_race/SearchRace-v3")</code></td>
         </tr>
     </tbody>
 </table>
@@ -95,7 +95,7 @@ The episode ends if either of the following happens:
 import gymnasium as gym
 
 gym.make(
-    "gymnasium_search_race:gymnasium_search_race/SearchRace-v2",
+    "gymnasium_search_race:gymnasium_search_race/SearchRace-v3",
     laps=3,
     car_max_thrust=200,
     test_id=1,
@@ -105,6 +105,7 @@ gym.make(
 
 ### Version History
 
+- v3: Update observation with relative positions and angles in car's frame
 - v2: Update observation with relative positions and angles
 - v1: Add boolean to indicate if the next checkpoint is the last checkpoint in observation
 - v0: Initial version
@@ -117,7 +118,7 @@ The `SearchRaceDiscrete` environment is similar to the `SearchRace` environment 
 import gymnasium as gym
 
 gym.make(
-    "gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v2",
+    "gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v3",
     laps=3,
     car_max_thrust=200,
     test_id=1,
@@ -131,6 +132,7 @@ There are 74 discrete actions corresponding to the combinations of angles from -
 
 ### Version History
 
+- v3: Update observation with relative positions and angles in car's frame
 - v2: Update observation with relative positions and angles
 - v1: Add all angles in action space
 - v0: Initial version
@@ -149,8 +151,8 @@ They are similar to the `SearchRace` and `SearchRaceDiscrete` environments excep
 ```python
 import gymnasium as gym
 
-gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacing-v1")
-gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v1")
+gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacing-v2")
+gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v2")
 ```
 
 https://github.com/user-attachments/assets/2e2a748d-5bd8-459a-8ac2-a8420bae33b9
@@ -163,14 +165,15 @@ the [Mad Pod Racing CodinGame bot programming game](https://www.codingame.com/mu
 ```python
 import gymnasium as gym
 
-gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacingBlocker-v1")
-gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacingBlockerDiscrete-v1")
+gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacingBlocker-v2")
+gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacingBlockerDiscrete-v2")
 ```
 
 https://github.com/user-attachments/assets/3c71a487-9ec1-49cd-9b8b-70f7984a809a
 
 ### Version History
 
+- v2: Update observation with relative positions and angles in car's frame
 - v1: Update observation with relative positions and angles and update maximum thrust
 - v0: Initial version
 
@@ -191,7 +194,7 @@ To train a PPO agent for the Search Race game, execute:
 ```bash
 python -m rl_zoo3.train \
   --algo ppo \
-  --env gymnasium_search_race/SearchRaceDiscrete-v2 \
+  --env gymnasium_search_race/SearchRaceDiscrete-v3 \
   --tensorboard-log logs \
   --eval-freq 20000 \
   --eval-episodes 50 \
@@ -210,12 +213,12 @@ For the Mad Pod Racing game, you can add an opponent with the `opponent_path` ar
 ```bash
 python -m rl_zoo3.train \
   --algo ppo \
-  --env gymnasium_search_race/MadPodRacingBlockerDiscrete-v1 \
+  --env gymnasium_search_race/MadPodRacingBlockerDiscrete-v2 \
   --tensorboard-log logs \
   --eval-freq 20000 \
   --eval-episodes 52 \
   --gym-packages gymnasium_search_race \
-  --env-kwargs "opponent_path:'rl-trained-agents/ppo/gymnasium_search_race-MadPodRacingDiscrete-v1_1/best_model.zip'" "laps:1000" "sequential_maps:True" \
+  --env-kwargs "opponent_path:'rl-trained-agents/ppo/gymnasium_search_race-MadPodRacingDiscrete-v2_1/best_model.zip'" "laps:1000" "sequential_maps:True" \
   --conf-file hyperparams/ppo.yml \
   --progress
 ```
@@ -231,7 +234,7 @@ To see a trained agent in action on random test cases, execute:
 ```bash
 python -m rl_zoo3.enjoy \
   --algo ppo \
-  --env gymnasium_search_race/SearchRaceDiscrete-v2 \
+  --env gymnasium_search_race/SearchRaceDiscrete-v3 \
   --n-timesteps 1000 \
   --deterministic \
   --gym-packages gymnasium_search_race \
@@ -245,8 +248,8 @@ To run test cases with a trained agent, execute:
 
 ```bash
 python -m scripts.run_test_cases \
-  --path rl-trained-agents/ppo/gymnasium_search_race-SearchRaceDiscrete-v2_1/best_model.zip \
-  --env gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v2 \
+  --path rl-trained-agents/ppo/gymnasium_search_race-SearchRaceDiscrete-v3_1/best_model.zip \
+  --env gymnasium_search_race:gymnasium_search_race/SearchRaceDiscrete-v3 \
   --record-video \
   --record-metrics
 ```
@@ -257,17 +260,17 @@ To record a video of a trained agent on Mad Pod Racing, execute:
 
 ```bash
 python -m scripts.record_video \
-  --path rl-trained-agents/ppo/gymnasium_search_race-MadPodRacingDiscrete-v1_1/best_model.zip \
-  --env gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v1
+  --path rl-trained-agents/ppo/gymnasium_search_race-MadPodRacingDiscrete-v2_1/best_model.zip \
+  --env gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v2
 ```
 
 For Mad Pod Racing Blocker, execute:
 
 ```bash
 python -m scripts.record_video \
-  --path rl-trained-agents/ppo/gymnasium_search_race-MadPodRacingBlockerDiscrete-v1_1/best_model.zip \
-  --opponent-path rl-trained-agents/ppo/gymnasium_search_race-MadPodRacingDiscrete-v1_1/best_model.zip \
-  --env gymnasium_search_race:gymnasium_search_race/MadPodRacingBlockerDiscrete-v1
+  --path rl-trained-agents/ppo/gymnasium_search_race-MadPodRacingBlockerDiscrete-v2_1/best_model.zip \
+  --opponent-path rl-trained-agents/ppo/gymnasium_search_race-MadPodRacingDiscrete-v2_1/best_model.zip \
+  --env gymnasium_search_race:gymnasium_search_race/MadPodRacingBlockerDiscrete-v2
 ```
 
 ## Tests

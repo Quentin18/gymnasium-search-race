@@ -1,12 +1,12 @@
 # https://stable-baselines3.readthedocs.io/en/master/modules/ppo.html#parameters
-gymnasium_search_race/SearchRace-v2: &search-race-defaults
+gymnasium_search_race/SearchRace-v3: &search-race-defaults
   n_timesteps: !!float 1e7
   policy: "MlpPolicy"
   n_steps: 4096
   batch_size: 64
   n_epochs: 10
   gamma: 0.99
-  learning_rate: !!float 3e-4
+  learning_rate: !!float 1e-5
   clip_range: 0.2
   ent_coef: 0.01
   vf_coef: 0.5
@@ -20,17 +20,17 @@ gymnasium_search_race/SearchRace-v2: &search-race-defaults
   )"
   n_envs: 8
 
-gymnasium_search_race/SearchRaceDiscrete-v2:
+gymnasium_search_race/SearchRaceDiscrete-v3:
   <<: *search-race-defaults
 
-gymnasium_search_race/MadPodRacing-v1:
+gymnasium_search_race/MadPodRacing-v2:
   <<: *search-race-defaults
 
-gymnasium_search_race/MadPodRacingBlocker-v1:
+gymnasium_search_race/MadPodRacingBlocker-v2:
   <<: *search-race-defaults
 
-gymnasium_search_race/MadPodRacingDiscrete-v1:
+gymnasium_search_race/MadPodRacingDiscrete-v2:
   <<: *search-race-defaults
 
-gymnasium_search_race/MadPodRacingBlockerDiscrete-v1:
+gymnasium_search_race/MadPodRacingBlockerDiscrete-v2:
   <<: *search-race-defaults
