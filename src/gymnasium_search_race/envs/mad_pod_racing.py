@@ -14,6 +14,7 @@ from gymnasium_search_race.envs.search_race import SCALE_FACTOR, SearchRaceEnv
 ROOT_PATH = Path(__file__).resolve().parent
 ASSETS_PATH = ROOT_PATH / "assets" / "mad_pod_racing"
 
+BOOST_THRUST = 650
 MAPS = [
     [
         [12460, 1350],
@@ -113,6 +114,8 @@ class MadPodRacingEnv(SearchRaceEnv):
         test_id: int | None = None,
         sequential_maps: bool = False,
         opponent_path: str | Path | None = None,
+        boost_on_first_move: bool = False,
+        boost_opponent_on_first_move: bool = False,
     ) -> None:
         super().__init__(
             render_mode=render_mode,
@@ -129,6 +132,9 @@ class MadPodRacingEnv(SearchRaceEnv):
         self.opponent_car_img_path = ASSETS_PATH / "space_ship_blocker.png"
 
         self.opponent_model = PPO.load(opponent_path) if opponent_path else None
+
+        self.boost_on_first_move = boost_on_first_move
+        self.boost_opponent_on_first_move = boost_opponent_on_first_move
 
     def _get_test_ids(self) -> list[int]:
         return list(range(len(MAPS)))
@@ -236,12 +242,19 @@ class MadPodRacingEnv(SearchRaceEnv):
             car.truncate_speed(friction=self.car_friction)
 
     def _apply_angle_thrust(self, angle: float, thrust: float) -> None:
+        if self.boost_on_first_move and self.episode_length == 0:
+            thrust = BOOST_THRUST
+
         super()._apply_angle_thrust(angle=angle, thrust=thrust)
 
         if self.opponent_car:
             observation = self._get_opponent_obs()
             action, _ = self.opponent_model.predict(observation, deterministic=True)
             angle, thrust = self._convert_action_to_angle_thrust(action=action)
+
+            if self.boost_opponent_on_first_move and self.episode_length == 0:
+                thrust = BOOST_THRUST
+
             self.opponent_car.rotate(angle=angle)
             self.opponent_car.thrust_towards_heading(thrust=thrust)
 
@@ -352,6 +365,8 @@ class MadPodRacingBlockerEnv(MadPodRacingEnv):
         car_max_thrust: int = 200,
         test_id: int | None = None,
         sequential_maps: bool = False,
+        boost_on_first_move: bool = False,
+        boost_opponent_on_first_move: bool = False,
     ) -> None:
         super().__init__(
             render_mode=render_mode,
@@ -360,6 +375,8 @@ class MadPodRacingBlockerEnv(MadPodRacingEnv):
             opponent_path=opponent_path,
             test_id=test_id,
             sequential_maps=sequential_maps,
+            boost_on_first_move=boost_on_first_move,
+            boost_opponent_on_first_move=boost_opponent_on_first_move,
         )
 
         # opponent runner observation, blocker car
@@ -392,6 +409,8 @@ class MadPodRacingDiscreteEnv(MadPodRacingEnv):
         test_id: int | None = None,
         sequential_maps: bool = False,
         opponent_path: str | Path | None = None,
+        boost_on_first_move: bool = False,
+        boost_opponent_on_first_move: bool = False,
     ) -> None:
         super().__init__(
             render_mode=render_mode,
@@ -400,6 +419,8 @@ class MadPodRacingDiscreteEnv(MadPodRacingEnv):
             test_id=test_id,
             sequential_maps=sequential_maps,
             opponent_path=opponent_path,
+            boost_on_first_move=boost_on_first_move,
+            boost_opponent_on_first_move=boost_opponent_on_first_move,
         )
 
         self.actions = list(
@@ -431,6 +452,8 @@ class MadPodRacingBlockerDiscreteEnv(MadPodRacingBlockerEnv):
         car_max_thrust: int = 200,
         test_id: int | None = None,
         sequential_maps: bool = False,
+        boost_on_first_move: bool = False,
+        boost_opponent_on_first_move: bool = False,
     ) -> None:
         super().__init__(
             opponent_path=opponent_path,
@@ -439,6 +462,8 @@ class MadPodRacingBlockerDiscreteEnv(MadPodRacingBlockerEnv):
             car_max_thrust=car_max_thrust,
             test_id=test_id,
             sequential_maps=sequential_maps,
+            boost_on_first_move=boost_on_first_move,
+            boost_opponent_on_first_move=boost_opponent_on_first_move,
         )
 
         self.actions = list(

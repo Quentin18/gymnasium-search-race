@@ -171,9 +171,15 @@ gym.make("gymnasium_search_race:gymnasium_search_race/MadPodRacingBlockerDiscret
 
 https://github.com/user-attachments/assets/3c71a487-9ec1-49cd-9b8b-70f7984a809a
 
+### Arguments
+
+- `opponent_path`: path to the opponent PPO model. The default value is `None` which means there is no opponent.
+- `boost_on_first_move`: if `True`, the car is boosted on the first move. The default value is `False`.
+- `boost_opponent_on_first_move`: if `True`, the opponent is boosted on the first move. The default value is `False`.
+
 ### Version History
 
-- v2: Update observation with relative positions and angles in car's frame
+- v2: Update observation with relative positions and angles in car's frame and add boost options
 - v1: Update observation with relative positions and angles and update maximum thrust
 - v0: Initial version
 
@@ -218,7 +224,11 @@ python -m rl_zoo3.train \
   --eval-freq 20000 \
   --eval-episodes 52 \
   --gym-packages gymnasium_search_race \
-  --env-kwargs "opponent_path:'rl-trained-agents/ppo/gymnasium_search_race-MadPodRacingDiscrete-v2_1/best_model.zip'" "laps:1000" "sequential_maps:True" \
+  --env-kwargs \
+  "opponent_path:'rl-trained-agents/ppo/gymnasium_search_race-MadPodRacingDiscrete-v2_1/best_model.zip'" \
+  "laps:1000" \
+  "sequential_maps:True" \
+  "boost_opponent_on_first_move:True" \
   --conf-file hyperparams/ppo.yml \
   --progress
 ```

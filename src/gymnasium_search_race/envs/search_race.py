@@ -162,6 +162,7 @@ class SearchRaceEnv(gym.Env):
             "checkpoints": self.checkpoints,
             "total_checkpoints": self.total_checkpoints,
             "current_checkpoint": self.car.current_checkpoint,
+            "episode_length": self.episode_length,
         }
 
     def _generate_checkpoints(
@@ -206,6 +207,7 @@ class SearchRaceEnv(gym.Env):
     ) -> tuple[ObsType, dict[str, Any]]:
         super().reset(seed=seed, options=options)
 
+        self.episode_length = 0
         self.checkpoints = self._generate_checkpoints(options=options)
         self.total_checkpoints = len(self.checkpoints) * self.laps
         self._generate_car()
@@ -271,6 +273,7 @@ class SearchRaceEnv(gym.Env):
         self._apply_angle_thrust(angle=angle, thrust=thrust)
         reward = self._move_car()
         self._adjust_car()
+        self.episode_length += 1
 
         observation = self._get_obs()
         terminated = self._get_terminated()
