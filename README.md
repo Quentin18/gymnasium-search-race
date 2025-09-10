@@ -22,7 +22,7 @@ https://github.com/user-attachments/assets/766b4c79-1be7-48bd-a25b-2ff99de972f7
         </tr>
         <tr>
             <td>Observation Space</td>
-            <td><code>Box(-1, 1, shape=(8,), float64)</code></td>
+            <td><code>Box(-1, 1, shape=(10,), float64)</code></td>
         </tr>
         <tr>
             <td>import</td>
