@@ -131,3 +131,26 @@ def test_search_race_step(test_id: int):
             info["car_max_thrust"],
         ]
         _observation, _reward, _terminated, _truncated, info = env.step(action)
+
+
+@pytest.mark.parametrize(
+    "boost_on_first_move,expected",
+    (
+        (False, [12843.0, 1729.0, -81.0, 149.0]),
+        (True, [12628.0, 2124.0, -263.0, 485.0]),
+    ),
+)
+def test_mad_pod_racing_boost_on_first_move(
+    boost_on_first_move: bool,
+    expected: list[float],
+):
+    env = gym.make(
+        "gymnasium_search_race:gymnasium_search_race/MadPodRacingDiscrete-v2",
+        test_id=0,
+        boost_on_first_move=boost_on_first_move,
+    )
+    action = env.get_wrapper_attr("actions").index((0, 200))
+    env.reset(seed=42)
+    _observation, _reward, _terminated, _truncated, info = env.step(action)
+    actual = [info["x"], info["y"], info["vx"], info["vy"]]
+    assert actual == expected
