@@ -27,9 +27,13 @@ class RecordBestEpisodeStatistics(gym.Wrapper[ObsType, ActType, ObsType, ActType
         self.episode_lengths += 1
         self.episode_actions.append(action)
 
-        if (
-            terminated or truncated
-        ) and self.episode_returns > self.best_episode_returns:
+        if (terminated or truncated) and (
+            self.episode_returns > self.best_episode_returns
+            or (
+                self.episode_returns == self.best_episode_returns
+                and self.episode_lengths < self.best_episode_lengths
+            )
+        ):
             self.best_episode_returns = self.episode_returns
             self.best_episode_lengths = self.episode_lengths
             self.best_episode_actions = self.episode_actions.copy()
