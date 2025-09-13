@@ -27,6 +27,14 @@ def search_best_actions_on_test_id(
     )
     model.learn(total_timesteps=total_timesteps)
 
+    # Deterministic predictions
+    observation, _info = env.reset()
+    terminated = truncated = False
+
+    while not terminated and not truncated:
+        action, _ = model.predict(observation=observation, deterministic=True)
+        observation, _reward, terminated, truncated, _info = env.step(action)
+
     actions = []
     for action in env.best_episode_actions:
         actions.append(
@@ -83,7 +91,11 @@ def merge_best_actions(
     print("Merging best actions")
 
     for test_id in actions_1:
-        if len(actions_1[test_id]) < len(actions_2[test_id]):
+        length_1 = len(actions_1[test_id])
+        length_2 = len(actions_2[test_id])
+        print(f"Test {test_id}: {length_1} - {length_2}")
+
+        if length_1 < length_2:
             merged_actions[test_id] = actions_1[test_id]
         else:
             merged_actions[test_id] = actions_2[test_id]
